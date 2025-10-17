@@ -75,7 +75,7 @@ export default function Signin() {
               {/* Register link */}
               <div className="text-sm">
                 <span className="text-gray-800">Don't have an account? </span>
-                <Link to="/signup" className="text-red-500 font-semibold hover:underline">
+                <Link to="/register" className="text-red-500 font-semibold hover:underline">
                   Register
                 </Link>
               </div>
