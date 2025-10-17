@@ -22,8 +22,8 @@ export default function Signin() {
           {/* Right side - Login form */}
           <div className="flex flex-col justify-center max-w-md">
             {/* Social Login */}
-            <div className="mb-6">
-              <p className="text-sm text-gray-700 mb-3">Sign in with</p>
+            <div className="mb-6 flex flex-row gap-5">
+              <p className="text-sm text-gray-700 mb-3 flex items-center">Sign in with</p>
               <div className="flex gap-2">
                 <button className="w-10 h-10 bg-blue-600 text-white rounded flex items-center justify-center hover:bg-blue-700">
                   <i className="fab fa-facebook-f"></i>
