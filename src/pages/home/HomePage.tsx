@@ -132,12 +132,12 @@ export default function HomePage() {
         {/* Navigation tabs */}
         <div className="mb-8 flex gap-6 border-b">
           <Link
-            to="#"
+            to="/"
             className="text-blue-600 font-semibold pb-2 border-b-2 border-blue-600"
           >
             All blog posts
           </Link>
-          <Link to="#" className="text-gray-600 pb-2 hover:text-blue-600">
+          <Link to="/my-posts" className="text-gray-600 pb-2 hover:text-blue-600">
             All my posts
           </Link>
         </div>

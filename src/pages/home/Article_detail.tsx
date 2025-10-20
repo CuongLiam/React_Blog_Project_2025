@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { useParams, Link } from "react-router";
+import { useParams, Link, useNavigate } from "react-router";
 import Header from "../../layouts/user/Header";
 import Footer from "../../layouts/user/Footer";
 import { articles, comments, replies, likes, users } from "../../data/fakeData";
 import type { comment as CommentType, reply as ReplyType } from "../../types/user";
 
 export default function Article_detail() {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const articleId = parseInt(id || "0");
 
@@ -34,9 +35,13 @@ export default function Article_detail() {
         <Header />
         <div className="max-w-4xl mx-auto px-8 py-16 text-center">
           <h1 className="text-3xl font-bold mb-4">Article Not Found</h1>
-          <Link to="/" className="text-blue-600 hover:underline">
-            Back to Home
-          </Link>
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+          >
+            <i className="fas fa-arrow-left"></i>
+            Back
+          </button>
         </div>
         <Footer />
       </>
