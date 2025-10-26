@@ -31,6 +31,13 @@ export let entries: entry[] = [
     { id: 1, name: "Personal Diary" },
     { id: 2, name: "Work Log" },
     { id: 3, name: "Thoughts" },
+    { id: 4, name: "Travel & Adventure" },
+    { id: 5, name: "Health & Fitness" },
+    { id: 6, name: "Food & Recipes" },
+    { id: 7, name: "Technology" },
+    { id: 8, name: "Books & Reading" },
+    { id: 9, name: "Music & Entertainment" },
+    { id: 10, name: "Family & Relationships" },
 ];
 
 export let articles: article[] = [

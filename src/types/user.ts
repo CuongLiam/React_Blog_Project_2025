@@ -1,3 +1,4 @@
+// User related types
 export interface user {
     id: number;
     firstname: string;
@@ -7,11 +8,13 @@ export interface user {
     avatar?: string;
 }
 
+// Category/Entry related types
 export interface entry{
     id: number;
     name: string;
 }
 
+// Article related types
 export interface article{
     id: number;
     title: string;
@@ -20,11 +23,12 @@ export interface article{
     content: string;
     mood: string;
     status: string;
-    category: string; // category added
-    image: string; // img
+    category: string;
+    image: string;
     date: string;
 }
 
+// Social interaction types
 export interface like{
     id: number;
     articleId: number;

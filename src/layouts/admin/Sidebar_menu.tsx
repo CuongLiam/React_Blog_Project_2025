@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router'
 
 interface SidebarMenuProps {
   activeItem?: string;
@@ -31,8 +32,9 @@ export default function Sidebar_menu({ activeItem = 'users' }: SidebarMenuProps)
       <div className="space-y-1">
         {/* Menu Items */}
         {menuItems.map((item) => (
-          <div
+          <Link
             key={item.id}
+            to={item.href}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-colors ${
               activeItem === item.id
                 ? 'bg-blue-200 shadow-sm'
@@ -43,7 +45,7 @@ export default function Sidebar_menu({ activeItem = 'users' }: SidebarMenuProps)
               <i className={`${item.icon} text-white text-xs`}></i>
             </div>
             <span className="text-blue-700 font-medium">{item.label}</span>
-          </div>
+          </Link>
         ))}
         
         {/* Log out */}
