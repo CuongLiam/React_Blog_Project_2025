@@ -9,6 +9,7 @@ import AddArticle from './pages/home/AddArticle'
 import AdminCustomer from './pages/admin/Admin_customer'
 import AdminEntries from './pages/admin/Admin_entries'
 import AdminArticles from './pages/admin/Admin_articles'
+import ProtectedAdmin from './pages/auth/ProtectedAdmin'
 
 export default function RouterConfig() {
   return (
@@ -22,7 +23,11 @@ export default function RouterConfig() {
         <Route path='/add-article' element={<AddArticle/>}></Route>
         
         {/* Admin Routes */}
-        <Route path='/admin' element={<AdminCustomer/>}></Route>
+        <Route path='/admin' element={
+          <ProtectedAdmin>
+            <AdminCustomer/>
+          </ProtectedAdmin>
+        }></Route>
         <Route path='/admin/customers' element={<AdminCustomer/>}></Route>
         <Route path='/admin/entries' element={<AdminEntries/>}></Route>
         <Route path='/admin/articles' element={<AdminArticles/>}></Route>
