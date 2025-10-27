@@ -1,11 +1,11 @@
 
-enum UserRole{
+export enum UserRole{
     USER = "USER",
     MASTER = "MASTER",
     ADMIN = "ADMIN",
 }
 
-enum UserStatus{
+export enum UserStatus{
     ACTIVE = "ACTIVE", // cua nguoi dung
     INACTIVE = "INACTIVE", // cua nguoi dung
     BAN = "BAN" // ban by admin or master
