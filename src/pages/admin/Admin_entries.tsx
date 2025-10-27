@@ -1,27 +1,34 @@
+
 import { useState } from 'react'
 import AdminHeader from '../../layouts/admin/Header'
 import Sidebar_menu from '../../layouts/admin/Sidebar_menu'
 import { entries } from '../../data/fakeData'
 
+const ITEMS_PER_PAGE = 5;
+
 export default function Admin_entries() {
   const [categories, setCategories] = useState(entries);
   const [categoryName, setCategoryName] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Filter categories based on search
   const filteredCategories = categories.filter(category => 
     category.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredCategories.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentCategories = filteredCategories.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
   // Add new category
   const handleAddCategory = () => {
     if (!categoryName.trim()) return;
-    
     const newCategory = {
       id: categories.length + 1,
       name: categoryName
     };
-    
     setCategories([...categories, newCategory]);
     setCategoryName("");
   };
@@ -47,11 +54,9 @@ export default function Admin_entries() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader />
-      
       <div className="flex">
         {/* Sidebar */}
         <Sidebar_menu activeItem="entries" />
-
         {/* Main Content */}
         <div className="flex-1 p-8">
           {/* Search Bar */}
@@ -64,7 +69,7 @@ export default function Admin_entries() {
                 type="text"
                 placeholder="Search Article Categories"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                 className="pl-12 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -125,15 +130,15 @@ export default function Admin_entries() {
 
                   {/* Table Body */}
                   <div className="divide-y divide-gray-200 bg-white">
-                    {filteredCategories.length === 0 ? (
+                    {currentCategories.length === 0 ? (
                       <div className="px-6 py-8 text-center text-gray-500">
                         No categories found
                       </div>
                     ) : (
-                      filteredCategories.map((category, index) => (
+                      currentCategories.map((category, idx) => (
                         <div key={category.id} className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-gray-50">
                           <div className="col-span-2 flex items-center">
-                            <span className="text-sm text-gray-900">{index + 1}</span>
+                            <span className="text-sm text-gray-900">{startIndex + idx + 1}</span>
                           </div>
                           <div className="col-span-7 flex items-center">
                             <span className="text-sm text-gray-900">{category.name}</span>
@@ -156,6 +161,33 @@ export default function Admin_entries() {
                       ))
                     )}
                   </div>
+                </div>
+
+                {/* Pagination */}
+                <div className="mt-6 flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className={`flex items-center gap-2 px-3 py-2 text-sm rounded ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-gray-600 hover:text-gray-900"}`}
+                  >
+                    &lt; Previous
+                  </button>
+                  {[...Array(totalPages)].map((_, idx) => (
+                    <button
+                      key={idx + 1}
+                      onClick={() => setCurrentPage(idx + 1)}
+                      className={`px-2 py-1 rounded ${currentPage === idx + 1 ? "bg-purple-100 text-purple-700 font-bold" : "text-gray-600 hover:text-purple-700"}`}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className={`flex items-center gap-2 px-3 py-2 text-sm rounded ${currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-gray-600 hover:text-gray-900"}`}
+                  >
+                    Next &gt;
+                  </button>
                 </div>
               </div>
             </div>

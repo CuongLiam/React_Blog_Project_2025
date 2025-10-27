@@ -217,50 +217,29 @@ export default function Admin_customer() {
             </div>
 
             {/* Pagination */}
-            <div className="mt-6 flex items-center justify-between">
+            <div className="mt-6 flex items-center justify-center gap-2">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`flex items-center gap-2 px-3 py-2 text-sm ${
-                  currentPage === 1
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
+                className={`flex items-center gap-2 px-3 py-2 text-sm rounded ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-gray-600 hover:text-gray-900"}`}
               >
-                <i className="fas fa-arrow-left"></i>
-                Previous
+                &lt; Previous
               </button>
-
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, "...", 8, 9, 10].map((page, index) => (
-                  <button
-                    key={index}
-                    onClick={() => typeof page === "number" && handlePageChange(page)}
-                    disabled={page === "..."}
-                    className={`w-8 h-8 text-sm rounded ${
-                      page === currentPage
-                        ? "bg-gray-100 font-medium"
-                        : page === "..."
-                        ? "cursor-default"
-                        : "hover:bg-gray-50"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
-
+              {[...Array(totalPages)].map((_, idx) => (
+                <button
+                  key={idx + 1}
+                  onClick={() => handlePageChange(idx + 1)}
+                  className={`px-2 py-1 rounded ${currentPage === idx + 1 ? "bg-purple-100 text-purple-700 font-bold" : "text-gray-600 hover:text-purple-700"}`}
+                >
+                  {idx + 1}
+                </button>
+              ))}
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`flex items-center gap-2 px-3 py-2 text-sm ${
-                  currentPage === totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
+                className={`flex items-center gap-2 px-3 py-2 text-sm rounded ${currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-gray-600 hover:text-gray-900"}`}
               >
-                Next
-                <i className="fas fa-arrow-right"></i>
+                Next &gt;
               </button>
             </div>
           </div>
