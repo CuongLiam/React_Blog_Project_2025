@@ -8,6 +8,7 @@ import MyPosts from './pages/home/MyPosts'
 import AddArticle from './pages/home/AddArticle'
 import AdminCustomer from './pages/admin/Admin_customer'
 import AdminEntries from './pages/admin/Admin_entries'
+import AdminArticles from './pages/admin/Admin_articles'
 
 export default function RouterConfig() {
   return (
@@ -24,6 +25,7 @@ export default function RouterConfig() {
         <Route path='/admin' element={<AdminCustomer/>}></Route>
         <Route path='/admin/customers' element={<AdminCustomer/>}></Route>
         <Route path='/admin/entries' element={<AdminEntries/>}></Route>
+        <Route path='/admin/articles' element={<AdminArticles/>}></Route>
 
     </Routes>
   )
