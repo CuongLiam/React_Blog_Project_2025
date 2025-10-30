@@ -49,7 +49,10 @@ export default function Sidebar_menu({ activeItem = 'users' }: SidebarMenuProps)
         ))}
         
         {/* Log out */}
-        <div className="flex items-center gap-3 px-4 py-3 hover:bg-blue-200 rounded-lg cursor-pointer transition-colors mt-4">
+        <div onClick={()=>{
+          localStorage.removeItem('userLogin');
+          window.location.href = '/login';
+        }} className="flex items-center gap-3 px-4 py-3 hover:bg-blue-200 rounded-lg cursor-pointer transition-colors mt-4">
           <div className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center">
             <i className="fas fa-sign-out-alt text-white text-xs"></i>
           </div>

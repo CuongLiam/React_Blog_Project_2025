@@ -1,18 +1,18 @@
 import React from 'react';
 import { Dropdown, Menu } from 'antd';
 
-const handleLogout = () => {
-  localStorage.removeItem('userLogin');
-  window.location.href = '/login';
-};
+// const handleLogout = () => {
+//   localStorage.removeItem('userLogin');
+//   window.location.href = '/login';
+// };
 
-const menu = (
-  <Menu>
-    <Menu.Item key="logout" onClick={handleLogout}>
-      <span className="text-red-500">Log out</span>
-    </Menu.Item>
-  </Menu>
-);
+// const menu = (
+//   <Menu>
+//     <Menu.Item key="logout" onClick={handleLogout}>
+//       <span className="text-red-500">Log out</span>
+//     </Menu.Item>
+//   </Menu>
+// );
 
 export default function Header() {
   return (
@@ -36,7 +36,7 @@ export default function Header() {
         </div>
 
         {/* User avatar dropdown */}
-        <Dropdown overlay={menu} trigger={["hover"]} placement="bottomRight">
+        {/* <Dropdown overlay={menu} trigger={["hover"]} placement="bottomRight"> */}
           <div className="flex items-center cursor-pointer">
             <img
               src="https://avatar.iran.liara.run/public/girl"
@@ -44,7 +44,7 @@ export default function Header() {
               className="w-10 h-10 rounded-full border-2 border-gray-200"
             />
           </div>
-        </Dropdown>
+        {/* </Dropdown> */}
       </div>
     </header>
   );
