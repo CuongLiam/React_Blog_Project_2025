@@ -1,11 +1,50 @@
-import React from "react";
+import { message } from "antd";
+import React, { type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router";
+import type { UserSigninDTO } from "../../apis/core/user.api";
+import { Apis } from "../../apis";
 
-export default function Signin() {
+export default function Signin({
+    children
+} :{
+    children: ReactNode
+}) {
+
+  let isAdmin = false;
+
+
+    if(isAdmin){
+        return (
+            <>
+            {children}
+            </>
+        )
+    }
+  
+  async function handleSignIn (e : FormEvent){
+    e.preventDefault()
+
+    let data : UserSigninDTO = {
+      emailOrUserName: (e.target as any).emailOrUserName.value,
+      password: (e.target as any).password.value,
+    }
+    // console.log("data", data);  
+    
+    try {
+      let result = await Apis.user.signin(data)
+
+      console.log("result", result);
+      
+    } catch (error) {
+      console.log("err", error);
+      
+      message.error(error.message)
+    }
+  }
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Header */}
-      <div className="px-8 py-4 text-blue-600 font-semibold text-lg">login</div>
+      <div className="px-8 py-4 text-blue-600 font-semibold text-lg">( •̀ ω •́ )✧ RIKKEI EDU BLOG</div>
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-8">
@@ -43,11 +82,14 @@ export default function Signin() {
             </div>
 
             {/* Login Form */}
-            <form className="space-y-4">
+            <form onSubmit={(e)=>{
+              handleSignIn(e)
+            }} className="space-y-4">
               {/* Email */}
               <div>
                 <input
-                  type="email"
+                name="emailOrUserName"
+                  type="text"
                   placeholder="Enter a valid email address"
                   className="w-full px-3 py-2 bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
@@ -57,6 +99,7 @@ export default function Signin() {
               {/* Password */}
               <div>
                 <input
+                name="password"
                   type="password"
                   placeholder="Enter password"
                   className="w-full px-3 py-2 bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -67,7 +110,7 @@ export default function Signin() {
               {/* Login button */}
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded font-medium hover:bg-blue-700 transition-colors"
+                className="cursor-pointer w-full bg-blue-600 text-white py-2 rounded font-medium hover:bg-blue-700 transition-colors"
               >
                 Login
               </button>
