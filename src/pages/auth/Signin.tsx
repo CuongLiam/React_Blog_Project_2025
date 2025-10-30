@@ -25,21 +25,39 @@ export default function Signin({
     return <>{children}</>;
   }
   
-  async function handleSignIn (e : FormEvent){
-    e.preventDefault()
+  const [form, setForm] = React.useState({
+    emailOrUserName: "",
+    password: ""
+  });
+  const [errors, setErrors] = React.useState<any>({});
 
-    let data : UserSigninDTO = {
-      emailOrUserName: (e.target as any).emailOrUserName.value,
-      password: (e.target as any).password.value,
+  function validate() {
+    const newErrors: any = {};
+    if (!form.emailOrUserName.trim()) {
+      newErrors.emailOrUserName = "Họ và tên và email không được để trống";
     }
-    // console.log("data", data);  
-    
+    if (!form.password) {
+      newErrors.password = "Mật khẩu không được để trống";
+    }
+    return newErrors;
+  }
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+  async function handleSignIn(e: FormEvent) {
+    e.preventDefault();
+    const newErrors = validate();
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
+    let data: UserSigninDTO = {
+      emailOrUserName: form.emailOrUserName,
+      password: form.password,
+    };
     try {
       let result = await Apis.user.signin(data);
-
-      console.log("result",result);
-      
-      
       localStorage.setItem("userLogin", JSON.stringify(result.data));
       Modal.confirm({
         title: "Successfully logged in!",
@@ -107,29 +125,33 @@ export default function Signin({
             </div>
 
             {/* Login Form */}
-            <form onSubmit={(e)=>{
-              handleSignIn(e)
-            }} className="space-y-4">
+            <form onSubmit={handleSignIn} className="space-y-4">
               {/* Email */}
               <div>
                 <input
-                name="emailOrUserName"
+                  name="emailOrUserName"
                   type="text"
+                  value={form.emailOrUserName}
+                  onChange={handleChange}
                   placeholder="Enter a valid email address"
                   className="w-full px-3 py-2 bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
                 <label className="block text-xs text-gray-700 mt-1">Email address</label>
+                {errors.emailOrUserName && <div className="text-red-500 text-xs">{errors.emailOrUserName}</div>}
               </div>
 
               {/* Password */}
               <div>
                 <input
-                name="password"
+                  name="password"
                   type="password"
+                  value={form.password}
+                  onChange={handleChange}
                   placeholder="Enter password"
                   className="w-full px-3 py-2 bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
                 <label className="block text-xs text-gray-700 mt-1">Password</label>
+                {errors.password && <div className="text-red-500 text-xs">{errors.password}</div>}
               </div>
 
               {/* Login button */}
