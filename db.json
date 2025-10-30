@@ -48,7 +48,7 @@
   "categories": [
     {
       "id": 1,
-      "name": "Personal Diary"
+      "name": "Personal minecraft diary"
     },
     {
       "id": 2,
@@ -85,6 +85,116 @@
     {
       "id": 10,
       "name": "Family & Relationships"
+    }
+  ],
+  "articles": [
+    {
+      "id": 1,
+      "title": "A Productive Day at Work",
+      "entryId": 2,
+      "userId": "1",
+      "content": "Today was a really productive day at work. I managed to finish a report ahead of schedule and received positive feedback from my manager.",
+      "status": "public",
+      "mood": "happy",
+      "category": "Work Log",
+      "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600",
+      "date": "2025-02-25"
+    },
+    {
+      "id": 2,
+      "title": "My First Job Interview Experience",
+      "entryId": 2,
+      "userId": "1",
+      "content": "I had my first job interview today! I was nervous at first, but as the conversation went on, I felt more confident.",
+      "status": "public",
+      "mood": "excited",
+      "category": "Work Log",
+      "image": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600",
+      "date": "2025-02-24"
+    },
+    {
+      "id": 3,
+      "title": "Overthinking Everything",
+      "entryId": 3,
+      "userId": "2",
+      "content": "Lately, I have been overthinking everything. From small decisions to bigger life choices, I know I should trust myself.",
+      "status": "public",
+      "mood": "anxious",
+      "category": "Thoughts",
+      "image": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600",
+      "date": "2025-02-23"
+    },
+    {
+      "id": 4,
+      "title": "Morning Reflections",
+      "entryId": 1,
+      "userId": "1",
+      "content": "Started my day with coffee and journaling. It's amazing how much clarity you can gain from just writing down your thoughts.",
+      "status": "public",
+      "mood": "peaceful",
+      "category": "Personal Diary",
+      "image": "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=600",
+      "date": "2025-02-22"
+    },
+    {
+      "id": 5,
+      "title": "Dealing with Stress",
+      "entryId": 3,
+      "userId": "2",
+      "content": "Work has been overwhelming lately. I need to find better ways to manage stress and maintain work-life balance.",
+      "status": "public",
+      "mood": "stressed",
+      "category": "Thoughts",
+      "image": "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600",
+      "date": "2025-02-21"
+    },
+    {
+      "id": 6,
+      "title": "Weekend Adventures",
+      "entryId": 1,
+      "userId": "1",
+      "content": "Spent the weekend hiking with friends. Nature really has a way of refreshing your mind and soul.",
+      "status": "public",
+      "mood": "happy",
+      "category": "Personal Diary",
+      "image": "https://images.unsplash.com/photo-1551632811-561732d1e306?w=600",
+      "date": "2025-02-20"
+    },
+    {
+      "id": 7,
+      "title": "Career Growth Plans",
+      "entryId": 2,
+      "userId": "1",
+      "content": "Setting new career goals for this year. I want to learn new skills and take on more challenging projects.",
+      "status": "public",
+      "mood": "motivated",
+      "category": "Work Log",
+      "image": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600",
+      "date": "2025-02-19"
+    },
+    {
+      "id": 8,
+      "title": "Gratitude Journal",
+      "entryId": 1,
+      "userId": "2",
+      "content": "Taking time to appreciate the small things in life. Family, friends, health - these are the things that truly matter.",
+      "status": "public",
+      "mood": "grateful",
+      "category": "Personal Diary",
+      "image": "https://images.unsplash.com/photo-1493612276216-ee3925520721?w=600",
+      "date": "2025-02-18"
+    },
+    {
+      "id": 9,
+      "title": "Feeling Overwhelmed",
+      "entryId": 3,
+      "userId": "2",
+      "content": "Sometimes life feels like too much. But I'm learning to take things one step at a time and ask for help when needed.",
+      "status": "public",
+      "mood": "overwhelmed",
+      "category": "Thoughts",
+      "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600",
+      "date": "2025-02-17"
     }
   ]
 }

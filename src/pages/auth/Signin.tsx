@@ -1,14 +1,19 @@
 import { message, Modal } from "antd";
 import React, { type FormEvent, type ReactNode } from "react";
+import { useDispatch } from "react-redux";
+import { fetchEntries } from "../../store/slices/entrySlice";
+import { fetchArticles } from "../../store/slices/articleSlice";
+import type { AppDispatch } from "../../store";
 import { Link } from "react-router";
 import type { UserSigninDTO } from "../../apis/core/user.api";
 import { Apis } from "../../apis";
 
 export default function Signin({
-    children
+  children
 } :{
-    children: ReactNode
+  children: ReactNode
 }) {
+  const dispatch = useDispatch<AppDispatch>();
 
   // let isAdmin = false;
   let userLogin = localStorage.getItem("userLogin");
@@ -62,17 +67,27 @@ export default function Signin({
       Modal.confirm({
         title: "Successfully logged in!",
         content: result.message,
-        onOk: () => {
+        onOk: async () => {
           const role = result.data.data[0].role;
           if (role === "ADMIN" || role === "MASTER") {
+            // Fetch entries and articles, store in Redux and localStorage
+            const entriesResult = await dispatch(fetchEntries()).unwrap();
+            const articlesResult = await dispatch(fetchArticles()).unwrap();
+            localStorage.setItem("entries", JSON.stringify(entriesResult));
+            localStorage.setItem("articles", JSON.stringify(articlesResult));
             window.location.href = "/admin";
           } else {
             window.location.href = "/";
           }
         },
-        onCancel: () => {
+        onCancel: async () => {
           const role = result.data.data[0].role;
           if (role === "ADMIN" || role === "MASTER") {
+            // Fetch entries and articles, store in Redux and localStorage
+            const entriesResult = await dispatch(fetchEntries()).unwrap();
+            const articlesResult = await dispatch(fetchArticles()).unwrap();
+            localStorage.setItem("entries", JSON.stringify(entriesResult));
+            localStorage.setItem("articles", JSON.stringify(articlesResult));
             window.location.href = "/admin";
           } else {
             window.location.href = "/";

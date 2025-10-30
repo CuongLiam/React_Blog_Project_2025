@@ -1,19 +1,26 @@
 
-import { useState } from 'react'
-import AdminHeader from '../../layouts/admin/Header'
-import Sidebar_menu from '../../layouts/admin/Sidebar_menu'
-import { entries } from '../../data/fakeData'
+import React, { useEffect, useState } from 'react';
+import AdminHeader from '../../layouts/admin/Header';
+import Sidebar_menu from '../../layouts/admin/Sidebar_menu';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchEntries } from '../../store/slices/entrySlice';
+import type { AppDispatch } from '../../store';
 
 const ITEMS_PER_PAGE = 5;
 
 export default function Admin_entries() {
-  const [categories, setCategories] = useState(entries);
+  const dispatch = useDispatch<AppDispatch>();
+  const { entries, loading, error } = useSelector((state: any) => state.entries);
   const [categoryName, setCategoryName] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
+  useEffect(() => {
+    dispatch(fetchEntries());
+  }, [dispatch]);
+
   // Filter categories based on search
-  const filteredCategories = categories.filter(category => 
+  const filteredCategories = entries.filter((category: any) =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -22,33 +29,24 @@ export default function Admin_entries() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const currentCategories = filteredCategories.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  // Add new category
+  // Add new category (local only, not persisted)
   const handleAddCategory = () => {
     if (!categoryName.trim()) return;
-    const newCategory = {
-      id: categories.length + 1,
-      name: categoryName
-    };
-    setCategories([...categories, newCategory]);
+    // This only updates local Redux state, not backend
+    // You can implement POST to json-server if needed
+    // For now, just show a message
+    alert("Add category feature requires backend implementation.");
     setCategoryName("");
   };
 
-  // Delete category
+  // Delete category (local only, not persisted)
   const handleDeleteCategory = (id: number) => {
-    setCategories(categories.filter(cat => cat.id !== id));
+    alert("Delete category feature requires backend implementation.");
   };
 
-  // Edit category (placeholder function)
+  // Edit category (local only, not persisted)
   const handleEditCategory = (id: number) => {
-    const category = categories.find(cat => cat.id === id);
-    if (category) {
-      const newName = prompt("Enter new category name:", category.name);
-      if (newName && newName.trim()) {
-        setCategories(categories.map(cat => 
-          cat.id === id ? { ...cat, name: newName } : cat
-        ));
-      }
-    }
+    alert("Edit category feature requires backend implementation.");
   };
 
   return (
