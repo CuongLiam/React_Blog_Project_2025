@@ -10,9 +10,10 @@ export const UserApi = {
         message: string,
         data: any 
     }> =>{
-        let userData = await axios.get(`${import.meta.env.VITE_SV_HOST}/users?email=${data.emailOrUserName}`)
-        if (userData){
-            userData = await axios.get(`${import.meta.env.VITE_SV_HOST}/users?userName=${data.emailOrUserName}`)
+        let userData = await axios.get(`${import.meta.env.VITE_SV_HOST}/users?email=${data.emailOrUserName}`);
+        if (userData.data.length === 0) {
+            // Try username if not found by email
+            userData = await axios.get(`${import.meta.env.VITE_SV_HOST}/users?username=${data.emailOrUserName}`);
         }
 
         if(userData.data.length == 0){

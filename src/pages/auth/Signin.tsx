@@ -1,4 +1,4 @@
-import { message } from "antd";
+import { message, Modal } from "antd";
 import React, { type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router";
 import type { UserSigninDTO } from "../../apis/core/user.api";
@@ -10,7 +10,8 @@ export default function Signin({
     children: ReactNode
 }) {
 
-  let isAdmin = false;
+  // let isAdmin = false;
+  let isAdmin = localStorage.getItem("userLogin");
 
 
     if(isAdmin){
@@ -33,7 +34,19 @@ export default function Signin({
     try {
       let result = await Apis.user.signin(data)
 
-      console.log("result", result);
+      // console.log("result", result);
+
+      localStorage.setItem("userLogin", JSON.stringify(result.data))
+      Modal.confirm({
+        title: "Successfully logged in!",
+        content: result.message,
+        onOk: ()=>{
+          window.location.reload()
+        },
+        onCancel: ()=>{
+          window.location.reload()
+        }
+      })
       
     } catch (error) {
       console.log("err", error);
