@@ -10,6 +10,17 @@
             "avatar": "",
             "status": "ACTIVE",
             "banReason": ""
+        },
+        {
+            "id": "2",
+            "username": "Alice",
+            "password": "123",
+            "role": "USER",
+            "displayName": "ALICE",
+            "email": "alice123@gmail.com",
+            "avatar": "",
+            "status": "ACTIVE",
+            "banReason": ""
         }
     ]
 }

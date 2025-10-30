@@ -32,26 +32,35 @@ export default function Signin({
     // console.log("data", data);  
     
     try {
-      let result = await Apis.user.signin(data)
+      let result = await Apis.user.signin(data);
 
-      // console.log("result", result);
-
-      localStorage.setItem("userLogin", JSON.stringify(result.data))
+      console.log("result",result);
+      
+      
+      localStorage.setItem("userLogin", JSON.stringify(result.data));
       Modal.confirm({
         title: "Successfully logged in!",
         content: result.message,
-        onOk: ()=>{
-          window.location.reload()
+        onOk: () => {
+          const role = result.data.data[0].role;
+          if (role === "ADMIN" || role === "MASTER") {
+            window.location.href = "/admin";
+          } else {
+            window.location.href = "/";
+          }
         },
-        onCancel: ()=>{
-          window.location.reload()
+        onCancel: () => {
+          const role = result.data.role;
+          if (role === "ADMIN" || role === "MASTER") {
+            window.location.href = "/admin";
+          } else {
+            window.location.href = "/";
+          }
         }
-      })
-      
+      });
     } catch (error) {
       console.log("err", error);
-      
-      message.error(error.message)
+      message.error(error.message);
     }
   }
   return (
