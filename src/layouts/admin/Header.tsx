@@ -1,4 +1,18 @@
-import React from 'react'
+import React from 'react';
+import { Dropdown, Menu } from 'antd';
+
+const handleLogout = () => {
+  localStorage.removeItem('userLogin');
+  window.location.href = '/login';
+};
+
+const menu = (
+  <Menu>
+    <Menu.Item key="logout" onClick={handleLogout}>
+      <span className="text-red-500">Log out</span>
+    </Menu.Item>
+  </Menu>
+);
 
 export default function Header() {
   return (
@@ -8,7 +22,6 @@ export default function Header() {
         <div className="relative">
           <button className="p-2 text-gray-600 hover:text-gray-900">
             <i className="far fa-envelope text-xl"></i>
-            {/* Notification badge */}
             <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
               2
             </span>
@@ -22,15 +35,17 @@ export default function Header() {
           </button>
         </div>
 
-        {/* User avatar */}
-        <div className="flex items-center">
-          <img
-            src="https://avatar.iran.liara.run/public/girl"
-            alt="Admin Avatar"
-            className="w-10 h-10 rounded-full border-2 border-gray-200"
-          />
-        </div>
+        {/* User avatar dropdown */}
+        <Dropdown overlay={menu} trigger={["hover"]} placement="bottomRight">
+          <div className="flex items-center cursor-pointer">
+            <img
+              src="https://avatar.iran.liara.run/public/girl"
+              alt="Admin Avatar"
+              className="w-10 h-10 rounded-full border-2 border-gray-200"
+            />
+          </div>
+        </Dropdown>
       </div>
     </header>
-  )
+  );
 }

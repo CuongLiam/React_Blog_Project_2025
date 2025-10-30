@@ -11,16 +11,19 @@ export default function Signin({
 }) {
 
   // let isAdmin = false;
-  let isAdmin = localStorage.getItem("userLogin");
+  let userLogin = localStorage.getItem("userLogin");
 
-
-    if(isAdmin){
-        return (
-            <>
-            {children}
-            </>
-        )
+  if (userLogin) {
+    const userData = JSON.parse(userLogin);
+    const role = userData?.data?.[0]?.role;
+    // If trying to access /admin and not ADMIN/MASTER, redirect to user page
+    if (window.location.pathname.startsWith("/admin") && role !== "ADMIN" && role !== "MASTER") {
+      window.location.href = "/";
+      return null;
     }
+    // ADMIN/MASTER can access both admin and user pages
+    return <>{children}</>;
+  }
   
   async function handleSignIn (e : FormEvent){
     e.preventDefault()
@@ -50,7 +53,7 @@ export default function Signin({
           }
         },
         onCancel: () => {
-          const role = result.data.role;
+          const role = result.data.data[0].role;
           if (role === "ADMIN" || role === "MASTER") {
             window.location.href = "/admin";
           } else {

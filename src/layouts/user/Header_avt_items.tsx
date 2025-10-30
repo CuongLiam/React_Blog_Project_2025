@@ -36,5 +36,9 @@ export const items: MenuProps["items"] = [
   {
     key: "logout",
     label: <span className="text-red-500">Log out</span>,
+    onClick: () => {
+      localStorage.removeItem("userLogin");
+      window.location.href = "/login";
+    },
   },
 ];
