@@ -1,26 +1,48 @@
 {
-    "users": [
-        {
-            "id": "1",
-            "username": "Liam Josh",
-            "password": "123",
-            "role": "MASTER",
-            "displayName": "Liam J",
-            "email": "liam123@gmail.com",
-            "avatar": "",
-            "status": "ACTIVE",
-            "banReason": ""
-        },
-        {
-            "id": "2",
-            "username": "Alice",
-            "password": "123",
-            "role": "USER",
-            "displayName": "ALICE",
-            "email": "alice123@gmail.com",
-            "avatar": "",
-            "status": "ACTIVE",
-            "banReason": ""
-        }
-    ]
+  "users": [
+    {
+      "id": "1",
+      "username": "Liam Josh",
+      "password": "123",
+      "role": "MASTER",
+      "displayName": "Liam J",
+      "email": "liam123@gmail.com",
+      "avatar": "",
+      "status": "ACTIVE",
+      "banReason": ""
+    },
+    {
+      "id": "2",
+      "username": "Alice",
+      "password": "123",
+      "role": "USER",
+      "displayName": "ALICE",
+      "email": "alice123@gmail.com",
+      "avatar": "",
+      "status": "ACTIVE",
+      "banReason": ""
+    },
+    {
+      "id": "1761857388605",
+      "username": "Alice Jr",
+      "password": "123456",
+      "role": "USER",
+      "displayName": "Alice Jr",
+      "email": "alice@example.com",
+      "avatar": "",
+      "status": "ACTIVE",
+      "banReason": ""
+    },
+    {
+      "id": "1761857421950",
+      "username": "Alice Downey",
+      "password": "123456",
+      "role": "USER",
+      "displayName": "Alice Downey",
+      "email": "alice123@example.com",
+      "avatar": "",
+      "status": "ACTIVE",
+      "banReason": ""
+    }
+  ]
 }

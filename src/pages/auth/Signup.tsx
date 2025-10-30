@@ -1,5 +1,7 @@
 import React from "react";
 import { Link } from "react-router";
+import { Apis } from "../../apis";
+import axios from "axios";
 
 export default function Signup() {
   const [form, setForm] = React.useState({
@@ -38,14 +40,45 @@ export default function Signup() {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const newErrors = validate();
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
-      // Simulate signup success
-      window.alert("Đăng ký thành công!");
-      window.location.href = "/login";
+      // Build user object
+      const username = `${form.firstName} ${form.lastName}`.trim();
+      // Check for duplicate username/email
+      try {
+        // Check username
+        const usernameRes = await axios.get(`${import.meta.env.VITE_SV_HOST}/users?username=${encodeURIComponent(username)}`);
+        if (usernameRes.data && usernameRes.data.length > 0) {
+          setErrors({ ...newErrors, fullName: "Tên đăng nhập đã tồn tại" });
+          return;
+        }
+        // Check email
+        const emailRes = await axios.get(`${import.meta.env.VITE_SV_HOST}/users?email=${encodeURIComponent(form.email)}`);
+        if (emailRes.data && emailRes.data.length > 0) {
+          setErrors({ ...newErrors, email: "Email đã tồn tại" });
+          return;
+        }
+        // If not duplicate, proceed
+        const newUser = {
+          id: Date.now().toString(),
+          username,
+          password: form.password,
+          role: "USER",
+          displayName: username,
+          email: form.email,
+          avatar: "",
+          status: "ACTIVE",
+          banReason: ""
+        };
+        await axios.post(`${import.meta.env.VITE_SV_HOST}/users`, newUser);
+        window.alert("Đăng ký thành công!");
+        window.location.href = "/login";
+      } catch (err) {
+        window.alert("Đăng ký thất bại. Vui lòng thử lại.");
+      }
     }
   }
 
