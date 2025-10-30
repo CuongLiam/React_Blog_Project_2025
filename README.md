@@ -6,3 +6,5 @@ note:
 
 
 + add the add articles page in admin that make it manage the whole websites articles
+
++ change the modal title to hello user or admin name when successfully login

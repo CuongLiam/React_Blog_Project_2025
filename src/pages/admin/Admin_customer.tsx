@@ -1,102 +1,25 @@
-import { useState } from 'react'
-import AdminHeader from '../../layouts/admin/Header'
-import Sidebar_menu from '../../layouts/admin/Sidebar_menu'
-
-// Mock data for users
-const mockUsers = [
-  {
-    id: 1,
-    name: "Olivia Rhye",
-    username: "@olivia",
-    email: "olivia@untitledui.com",
-    status: "hoạt động",
-    avatar: "https://avatar.iran.liara.run/public/1"
-  },
-  {
-    id: 2,
-    name: "Phoenix Baker",
-    username: "@phoenix",
-    email: "phoenix@untitledui.com", 
-    status: "hoạt động",
-    avatar: "https://avatar.iran.liara.run/public/2"
-  },
-  {
-    id: 3,
-    name: "Lana Steiner",
-    username: "@lana",
-    email: "lana@untitledui.com",
-    status: "hoạt động", 
-    avatar: "https://avatar.iran.liara.run/public/3"
-  },
-  {
-    id: 4,
-    name: "Demi Wilkinson",
-    username: "@demi",
-    email: "demi@untitledui.com",
-    status: "hoạt động",
-    avatar: "https://avatar.iran.liara.run/public/4"
-  },
-  {
-    id: 5,
-    name: "Candice Wu",
-    username: "@candice", 
-    email: "candice@untitledui.com",
-    status: "hoạt động",
-    avatar: "CW",
-    isInitials: true
-  },
-  {
-    id: 6,
-    name: "Natali Craig",
-    username: "@natali",
-    email: "natali@untitledui.com",
-    status: "hoạt động",
-    avatar: "https://avatar.iran.liara.run/public/6"
-  },
-  {
-    id: 7,
-    name: "Drew Cano", 
-    username: "@drew",
-    email: "drew@untitledui.com",
-    status: "hoạt động",
-    avatar: "https://avatar.iran.liara.run/public/7"
-  },
-  {
-    id: 8,
-    name: "Orlando Diggs",
-    username: "@orlando",
-    email: "orlando@untitledui.com",
-    status: "hoạt động",
-    avatar: "OD",
-    isInitials: true
-  },
-  {
-    id: 9,
-    name: "Andi Lane",
-    username: "@andi", 
-    email: "andi@untitledui.com",
-    status: "hoạt động",
-    avatar: "https://avatar.iran.liara.run/public/9"
-  },
-  {
-    id: 10,
-    name: "Kate Morrison",
-    username: "@kate",
-    email: "kate@untitledui.com", 
-    status: "hoạt động",
-    avatar: "https://avatar.iran.liara.run/public/10"
-  }
-];
+import React, { useState, useEffect } from 'react';
+import AdminHeader from '../../layouts/admin/Header';
+import Sidebar_menu from '../../layouts/admin/Sidebar_menu';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchUsers } from '../../store/slices/userSlice';
+import type { AppDispatch } from '../../store';
 
 export default function Admin_customer() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { users, loading, error } = useSelector((state: any) => state.users);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const ITEMS_PER_PAGE = 7;
 
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, [dispatch]);
+
   // Filter users based on search
-  const filteredUsers = mockUsers.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter((user: any) =>
+    (user.displayName || user.username || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.email || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Calculate pagination
@@ -111,21 +34,17 @@ export default function Admin_customer() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader />
-      
       <div className="flex">
         {/* Sidebar */}
         <Sidebar_menu activeItem="users" />
-
         {/* Main Content */}
         <div className="flex-1 p-8">
-          {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Team members</h1>
-                <p className="text-sm text-blue-600">100 users</p>
+                <p className="text-sm text-blue-600">{users.length} users</p>
               </div>
-              
               {/* Search */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -140,7 +59,6 @@ export default function Admin_customer() {
                 />
               </div>
             </div>
-
             {/* Table */}
             <div className="bg-white rounded-lg border">
               {/* Table Header */}
@@ -164,58 +82,55 @@ export default function Admin_customer() {
                   </div>
                 </div>
               </div>
-
               {/* Table Body */}
               <div className="divide-y divide-gray-200">
-                {currentUsers.map((user) => (
-                  <div key={user.id} className="px-6 py-4">
-                    <div className="grid grid-cols-12 gap-4 items-center">
-                      {/* Name */}
-                      <div className="col-span-4 flex items-center gap-3">
-                        {user.isInitials ? (
-                          <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-semibold text-sm">
-                            {user.avatar}
-                          </div>
-                        ) : (
+                {loading ? (
+                  <div className="px-6 py-4 text-center text-gray-500">Loading...</div>
+                ) : error ? (
+                  <div className="px-6 py-4 text-center text-red-500">{error}</div>
+                ) : currentUsers.length === 0 ? (
+                  <div className="px-6 py-4 text-center text-gray-500">No users found.</div>
+                ) : (
+                  currentUsers.map((user: any) => (
+                    <div key={user.id} className="px-6 py-4">
+                      <div className="grid grid-cols-12 gap-4 items-center">
+                        {/* Name */}
+                        <div className="col-span-4 flex items-center gap-3">
                           <img
-                            src={user.avatar}
-                            alt={user.name}
+                            src={user.avatar || `https://avatar.iran.liara.run/public/${user.id}`}
+                            alt={user.displayName || user.username}
                             className="w-10 h-10 rounded-full"
                           />
-                        )}
-                        <div>
-                          <div className="font-medium text-gray-900">{user.name}</div>
-                          <div className="text-sm text-gray-500">{user.username}</div>
+                          <div>
+                            <div className="font-medium text-gray-900">{user.displayName || user.username}</div>
+                            <div className="text-sm text-gray-500">{user.role}</div>
+                          </div>
+                        </div>
+                        {/* Status */}
+                        <div className="col-span-3">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.status === "ACTIVE" ? "bg-green-100 text-green-800" : user.status === "BAN" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"}`}>
+                            {user.status}
+                          </span>
+                        </div>
+                        {/* Email */}
+                        <div className="col-span-3">
+                          <span className="text-sm text-gray-600">{user.email}</span>
+                        </div>
+                        {/* Actions */}
+                        <div className="col-span-2 flex items-center gap-3">
+                          <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            block
+                          </button>
+                          <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            unblock
+                          </button>
                         </div>
                       </div>
-
-                      {/* Status */}
-                      <div className="col-span-3">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {user.status}
-                        </span>
-                      </div>
-
-                      {/* Email */}
-                      <div className="col-span-3">
-                        <span className="text-sm text-gray-600">{user.email}</span>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="col-span-2 flex items-center gap-3">
-                        <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                          block
-                        </button>
-                        <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                          unblock
-                        </button>
-                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
-
             {/* Pagination */}
             <div className="mt-6 flex items-center justify-center gap-2">
               <button
@@ -246,5 +161,5 @@ export default function Admin_customer() {
         </div>
       </div>
     </div>
-  )
+  );
 }
