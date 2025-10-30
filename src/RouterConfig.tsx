@@ -14,9 +14,9 @@ import ProtectedAdmin from './pages/auth/ProtectedAdmin'
 export default function RouterConfig() {
   return (
     <Routes>
-        {/* <Route path='/login' element={<Signin>
+        <Route path='/login' element={<Signin>
           <HomePage/>
-        </Signin>}></Route> */}
+        </Signin>}></Route>
         <Route path='/register' element={<Signup/>}></Route>
 
         <Route path='/' element={<HomePage/>}></Route>
