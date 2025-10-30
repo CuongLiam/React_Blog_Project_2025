@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import AdminHeader from '../../layouts/admin/Header';
 import Sidebar_menu from '../../layouts/admin/Sidebar_menu';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchEntries } from '../../store/slices/entrySlice';
+import { fetchEntries, addEntry, editEntry, deleteEntry } from '../../store/slices/entrySlice';
 import type { AppDispatch } from '../../store';
 
 const ITEMS_PER_PAGE = 5;
@@ -29,24 +29,27 @@ export default function Admin_entries() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const currentCategories = filteredCategories.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  // Add new category (local only, not persisted)
-  const handleAddCategory = () => {
+  // Add new category (persisted to backend)
+  const handleAddCategory = async () => {
     if (!categoryName.trim()) return;
-    // This only updates local Redux state, not backend
-    // You can implement POST to json-server if needed
-    // For now, just show a message
-    alert("Add category feature requires backend implementation.");
+    await dispatch(addEntry({ name: categoryName }));
     setCategoryName("");
   };
 
-  // Delete category (local only, not persisted)
-  const handleDeleteCategory = (id: number) => {
-    alert("Delete category feature requires backend implementation.");
+  // Delete category (persisted to backend)
+  const handleDeleteCategory = async (id: number) => {
+    await dispatch(deleteEntry(id));
   };
 
-  // Edit category (local only, not persisted)
-  const handleEditCategory = (id: number) => {
-    alert("Edit category feature requires backend implementation.");
+  // Edit category (persisted to backend)
+  const handleEditCategory = async (id: number) => {
+    const category = entries.find((cat: any) => cat.id === id);
+    if (category) {
+      const newName = prompt("Enter new category name:", category.name);
+      if (newName && newName.trim()) {
+        await dispatch(editEntry({ id, name: newName }));
+      }
+    }
   };
 
   return (
