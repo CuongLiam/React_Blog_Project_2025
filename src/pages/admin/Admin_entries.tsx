@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import { Modal } from 'antd';
 import AdminHeader from '../../layouts/admin/Header';
 import Sidebar_menu from '../../layouts/admin/Sidebar_menu';
 import { useSelector, useDispatch } from 'react-redux';
@@ -36,9 +37,18 @@ export default function Admin_entries() {
     setCategoryName("");
   };
 
-  // Delete category (persisted to backend)
-  const handleDeleteCategory = async (id: number) => {
-    await dispatch(deleteEntry(id));
+  // Delete category (persisted to backend with confirmation)
+  const handleDeleteCategory = (id: number) => {
+    Modal.confirm({
+      title: 'Are you sure you want to delete this category?',
+      content: 'This action cannot be undone.',
+      okText: 'Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        await dispatch(deleteEntry(id));
+      },
+    });
   };
 
   // Edit category (persisted to backend)
