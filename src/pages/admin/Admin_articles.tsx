@@ -6,9 +6,6 @@ import { Link } from "react-router";
 import axios from "axios";
 import { Modal, message } from "antd";
 
-// ...existing code...
-
-
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchArticles } from "../../store/slices/articleSlice";

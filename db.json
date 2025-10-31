@@ -222,5 +222,77 @@
       "date": "2025-10-31",
       "userId": "1761857388605"
     }
+  ],
+  "comments": [
+    {
+      "id": "1",
+      "articleId": "1",
+      "userId": "1",
+      "content": "Great article! Very informative.",
+      "createdAt": "2025-01-15T10:30:00.000Z"
+    },
+    {
+      "id": "2",
+      "articleId": "1",
+      "userId": "2",
+      "content": "Thanks for sharing your experience.",
+      "createdAt": "2025-01-15T11:00:00.000Z"
+    },
+    {
+      "id": "3",
+      "articleId": "2",
+      "userId": "1",
+      "content": "Good luck with your interview process!",
+      "createdAt": "2025-01-14T09:15:00.000Z"
+    },
+    {
+      "id": "7c9b",
+      "articleId": "5f6f",
+      "userId": "1",
+      "content": "Hi!",
+      "createdAt": "2025-10-31T02:06:33.167Z"
+    }
+  ],
+  "replies": [
+    {
+      "id": "1",
+      "commentId": "1",
+      "userId": "2",
+      "content": "I'm glad you found it helpful!",
+      "createdAt": "2025-01-15T12:00:00.000Z"
+    },
+    {
+      "id": "2",
+      "commentId": "2",
+      "userId": "1",
+      "content": "You're welcome! Feel free to ask if you have questions.",
+      "createdAt": "2025-01-15T12:30:00.000Z"
+    }
+  ],
+  "likes": [
+    {
+      "id": "1",
+      "articleId": "1",
+      "userId": "1",
+      "createdAt": "2025-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "2",
+      "articleId": "1",
+      "userId": "2",
+      "createdAt": "2025-01-15T10:45:00.000Z"
+    },
+    {
+      "id": "3",
+      "articleId": "2",
+      "userId": "1",
+      "createdAt": "2025-01-14T09:00:00.000Z"
+    },
+    {
+      "id": "2abd",
+      "articleId": "5f6f",
+      "userId": "1",
+      "createdAt": "2025-10-31T02:05:54.054Z"
+    }
   ]
 }
