@@ -10,6 +10,7 @@ export default function Admin_customer() {
   const { users, loading, error } = useSelector((state: any) => state.users);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortAsc, setSortAsc] = useState(true);
   const ITEMS_PER_PAGE = 7;
 
   useEffect(() => {
@@ -17,10 +18,19 @@ export default function Admin_customer() {
   }, [dispatch]);
 
   // Filter users based on search
-  const filteredUsers = users.filter((user: any) =>
+  let filteredUsers = users.filter((user: any) =>
     (user.displayName || user.username || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     (user.email || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Sort users by name
+  filteredUsers = filteredUsers.sort((a: any, b: any) => {
+    const nameA = (a.displayName || a.username || "").toLowerCase();
+    const nameB = (b.displayName || b.username || "").toLowerCase();
+    if (nameA < nameB) return sortAsc ? -1 : 1;
+    if (nameA > nameB) return sortAsc ? 1 : -1;
+    return 0;
+  });
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
@@ -29,6 +39,10 @@ export default function Admin_customer() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleSortClick = () => {
+    setSortAsc((prev) => !prev);
   };
 
   return (
@@ -64,9 +78,9 @@ export default function Admin_customer() {
               {/* Table Header */}
               <div className="px-6 py-4 border-b bg-gray-50">
                 <div className="grid grid-cols-12 gap-4 items-center">
-                  <div className="col-span-4 flex items-center gap-2">
+                  <div className="col-span-4 flex items-center gap-2 cursor-pointer" onClick={handleSortClick}>
                     <span className="font-medium text-gray-700">Name</span>
-                    <i className="fas fa-sort text-gray-400 text-xs"></i>
+                    <i className={`fas fa-sort${sortAsc ? '-alpha-down' : '-alpha-up'} text-gray-400 text-xs`}></i>
                   </div>
                   <div className="col-span-3">
                     <div className="flex items-center gap-2">
