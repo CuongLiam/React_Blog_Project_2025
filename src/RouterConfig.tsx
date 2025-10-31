@@ -10,6 +10,7 @@ import AdminCustomer from './pages/admin/Admin_customer'
 import AdminEntries from './pages/admin/Admin_entries'
 import AdminArticles from './pages/admin/Admin_articles'
 import ProtectedAdmin from './pages/auth/ProtectedAdmin'
+import Admin_add_articles from './pages/admin/Admin_add_articles'
 
 export default function RouterConfig() {
   return (
@@ -33,6 +34,7 @@ export default function RouterConfig() {
         <Route path='/admin/customers' element={<AdminCustomer/>}></Route>
         <Route path='/admin/entries' element={<AdminEntries/>}></Route>
         <Route path='/admin/articles' element={<AdminArticles/>}></Route>
+        <Route path='/admin/add-articles' element={<Admin_add_articles/>}></Route>
 
     </Routes>
   )

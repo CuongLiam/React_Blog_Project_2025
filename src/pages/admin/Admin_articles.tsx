@@ -104,7 +104,7 @@ export default function AdminArticles() {
           <div className="flex w-full mb-8">
             <div className="flex items-start w-1/4">
               <Link
-                to="/add-article"
+                to="/admin/add-articles"
                 className="px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
                 style={{ minWidth: 180 }}
               >

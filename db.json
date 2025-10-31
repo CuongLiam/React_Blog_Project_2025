@@ -26,7 +26,7 @@
       "id": "1761857388605",
       "username": "Alice Jr",
       "password": "123456",
-      "role": "USER",
+      "role": "ADMIN",
       "displayName": "Alice Jr",
       "email": "alice@example.com",
       "avatar": "",
@@ -199,6 +199,28 @@
       "category": "Thoughts",
       "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600",
       "date": "2025-02-17"
+    },
+    {
+      "id": "5f6f",
+      "title": "Hello World",
+      "category": "Family & Relationships",
+      "mood": "happy",
+      "content": "balls 404",
+      "status": "public",
+      "image": "",
+      "date": "2025-10-31",
+      "userId": "1"
+    },
+    {
+      "id": "56fb",
+      "title": "Hello from Alice",
+      "category": "Books & Reading",
+      "mood": "happy",
+      "content": "Blah blah blah ",
+      "status": "public",
+      "image": "https://plus.unsplash.com/premium_photo-1666901328734-3c6eb9b6b979?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cmFuZG9tfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600",
+      "date": "2025-10-31",
+      "userId": "1761857388605"
     }
   ]
 }
