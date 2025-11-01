@@ -6,6 +6,7 @@ import axios from "axios";
 import AdminHeader from "../../layouts/admin/Header";
 import Sidebar_menu from "../../layouts/admin/Sidebar_menu";
 import { fetchArticles } from "../../store/slices/articleSlice";
+import { fetchUsers } from "../../store/slices/userSlice";
 import type { AppDispatch } from "../../store";
 
 const ITEMS_PER_PAGE = 5;
@@ -14,14 +15,52 @@ export default function AdminArticles() {
   // Redux
   const dispatch = useDispatch<AppDispatch>();
   const { articles, loading, error } = useSelector((state: any) => state.articles);
+  const { users } = useSelector((state: any) => state.users);
   
   // State
   const [currentPage, setCurrentPage] = useState(1);
   const [statusEdits, setStatusEdits] = useState<{[id:string]: string}>({});
 
-  // Fetch articles on mount
+  // Get current user role
+  const getCurrentUserRole = () => {
+    try {
+      const userLogin = localStorage.getItem("userLogin");
+      if (userLogin) {
+        const userData = JSON.parse(userLogin);
+        const user = userData?.data?.[0] || userData?.[0] || userData;
+        return user.role || "USER";
+      }
+    } catch {
+      return "USER";
+    }
+    return "USER";
+  };
+
+  const currentUserRole = getCurrentUserRole();
+
+  // Check if current user can edit/delete an article
+  const canEditArticle = (article: any) => {
+    const articleAuthor = users.find((user: any) => user.id === article.userId);
+    if (!articleAuthor) return false;
+
+    const authorRole = articleAuthor.role;
+
+    // USER articles cannot be edited/deleted by ADMIN or MASTER
+    if (authorRole === "USER") return false;
+
+    // ADMIN can only edit ADMIN articles
+    if (currentUserRole === "ADMIN" && authorRole === "ADMIN") return true;
+
+    // MASTER can edit ADMIN and MASTER articles
+    if (currentUserRole === "MASTER" && (authorRole === "ADMIN" || authorRole === "MASTER")) return true;
+
+    return false;
+  };
+
+  // Fetch articles and users on mount
   useEffect(() => {
     dispatch(fetchArticles());
+    dispatch(fetchUsers());
   }, [dispatch]);
 
   // Computed values
@@ -42,6 +81,11 @@ export default function AdminArticles() {
   };
 
   const handleEdit = (article: any) => {
+    if (!canEditArticle(article)) {
+      message.error("You don't have permission to edit this article!");
+      return;
+    }
+
     Modal.confirm({
       title: "Edit Article",
       content: (
@@ -91,7 +135,12 @@ export default function AdminArticles() {
     });
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (article: any) => {
+    if (!canEditArticle(article)) {
+      message.error("You don't have permission to delete this article!");
+      return;
+    }
+
     Modal.confirm({
       title: "Delete Article",
       content: "Are you sure you want to delete this article? This action cannot be undone.",
@@ -100,7 +149,7 @@ export default function AdminArticles() {
       cancelText: "Cancel",
       async onOk() {
         try {
-          await axios.delete(`${import.meta.env.VITE_SV_HOST}/articles/${id}`);
+          await axios.delete(`${import.meta.env.VITE_SV_HOST}/articles/${article.id}`);
           dispatch(fetchArticles());
           message.success("Article deleted successfully!");
         } catch {
@@ -159,13 +208,19 @@ export default function AdminArticles() {
                         <th className="py-3 px-2 font-semibold">Tiêu đề</th>
                         <th className="py-3 px-2 font-semibold">Chủ đề</th>
                         <th className="py-3 px-2 font-semibold">Nội dung</th>
+                        <th className="py-3 px-2 font-semibold">Vai trò</th>
                         <th className="py-3 px-2 font-semibold">Trạng thái</th>
                         <th className="py-3 px-2 font-semibold">Chỉnh sửa trạng thái</th>
                         <th className="py-3 px-2 font-semibold">Hành động</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {currentArticles.map((article: any) => (
+                      {currentArticles.map((article: any) => {
+                        const author = users.find((user: any) => user.id === article.userId);
+                        const authorRole = author?.role || "USER";
+                        const roleColor = authorRole === "MASTER" ? "bg-purple-100 text-purple-700" : authorRole === "ADMIN" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700";
+                        
+                        return (
                         <tr key={article.id} className="border-b hover:bg-gray-50 ">
                           <td className="py-6 px-2">
                             <img
@@ -177,6 +232,11 @@ export default function AdminArticles() {
                           <td className="py-3 px-2 font-medium">{article.title}</td>
                           <td className="py-3 px-2">{article.category}</td>
                           <td className="py-3 px-2 text-gray-600 truncate max-w-xs">{article.content}</td>
+                          <td className="py-3 px-2">
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${roleColor}`}>
+                              {authorRole}
+                            </span>
+                          </td>
                           <td className="py-3 px-2">{article.status}</td>
                           <td className="py-3 px-2">
                             <select
@@ -190,16 +250,19 @@ export default function AdminArticles() {
                           </td>
                           <td className="py-3 px-2 flex gap-2">
                             <button
-                              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                              className={`px-3 py-1 rounded ${canEditArticle(article) ? 'bg-blue-500 text-white hover:bg-blue-600 cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
                               onClick={() => handleEdit(article)}
+                              disabled={!canEditArticle(article)}
                             >Sửa</button>
                             <button
-                              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                              onClick={() => handleDelete(article.id)}
+                              className={`px-3 py-1 rounded ${canEditArticle(article) ? 'bg-red-500 text-white hover:bg-red-600 cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                              onClick={() => handleDelete(article)}
+                              disabled={!canEditArticle(article)}
                             >Xoá</button>
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 )}
