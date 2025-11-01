@@ -24,7 +24,8 @@ export default function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem('userLogin');
-    window.location.reload();
+    // window.location.reload();
+    window.location.href = '/login';
   };
 
   const dropdownMenu: MenuProps['items'] = [

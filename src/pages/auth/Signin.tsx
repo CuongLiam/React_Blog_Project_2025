@@ -102,7 +102,11 @@ export default function Signin({
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Header */}
-      <div className="px-8 py-4 text-blue-600 font-semibold text-lg">( •̀ ω •́ )✧ RIKKEI EDU BLOG</div>
+      <div className="px-8 py-4">
+        <Link to="/" className="text-blue-600 font-semibold text-lg hover:text-blue-700 cursor-pointer">
+          ( •̀ ω •́ )✧ RIKKEI EDU BLOG
+        </Link>
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-8">

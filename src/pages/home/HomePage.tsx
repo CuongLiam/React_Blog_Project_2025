@@ -10,14 +10,6 @@ export default function HomePage() {
   const ITEMS_PER_PAGE = 6;
   const CATEGORY_PAGE_SIZE = 5;
 
-  // Check authentication
-  useEffect(() => {
-    const userLogin = localStorage.getItem("userLogin");
-    if (!userLogin) {
-      navigate("/login");
-    }
-  }, [navigate]);
-
   // State
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);

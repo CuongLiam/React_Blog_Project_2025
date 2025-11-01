@@ -11,21 +11,26 @@ interface HeaderProps {
 
 export default function Header({ searchQuery = "", onSearchChange }: HeaderProps = {}) {
   const [localSearch, setLocalSearch] = useState(searchQuery);
-  // Get user info from localStorage
-  let avatar = "https://avatar.iran.liara.run/public";
-  let displayName = "Rikkei";
-  let email = "rikkei@gmail.com";
-  try {
-    const userLogin = localStorage.getItem("userLogin");
-    if (userLogin) {
-      const userData = JSON.parse(userLogin);
-      // Try to get from userData.data[0] or userData[0] or userData
-      const user = userData?.data?.[0] || userData?.[0] || userData;
-      displayName = user.displayName || user.username || displayName;
-      email = user.email || email;
-      avatar = user.avatar || avatar;
-    }
-  } catch {}
+  
+  // Check if user is logged in
+  const getUserInfo = () => {
+    try {
+      const userLogin = localStorage.getItem("userLogin");
+      if (userLogin) {
+        const userData = JSON.parse(userLogin);
+        const user = userData?.data?.[0] || userData?.[0] || userData;
+        return {
+          isLoggedIn: true,
+          displayName: user.displayName || user.username || "User",
+          email: user.email || "",
+          avatar: user.avatar || "https://avatar.iran.liara.run/public",
+        };
+      }
+    } catch {}
+    return { isLoggedIn: false, displayName: "", email: "", avatar: "" };
+  };
+
+  const userInfo = getUserInfo();
 
   // Handle search input
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,20 +47,20 @@ export default function Header({ searchQuery = "", onSearchChange }: HeaderProps
     }
   };
 
-  // Clone dropdown items and inject user info
-  const items: MenuProps["items"] = [
+  // Clone dropdown items and inject user info (only if logged in)
+  const items: MenuProps["items"] = userInfo.isLoggedIn ? [
     {
       key: "profile",
       label: (
         <div className="flex items-center gap-3 px-2 py-2">
           <img
-            src={avatar}
+            src={userInfo.avatar}
             alt="avatar"
             className="w-10 h-10 rounded-full object-cover"
           />
           <div>
-            <div className="font-semibold">{displayName}</div>
-            <div className="text-xs text-gray-500">{email}</div>
+            <div className="font-semibold">{userInfo.displayName}</div>
+            <div className="text-xs text-gray-500">{userInfo.email}</div>
           </div>
         </div>
       ),
@@ -63,7 +68,7 @@ export default function Header({ searchQuery = "", onSearchChange }: HeaderProps
     },
     { type: "divider" },
     ...defaultItems.filter(i => i?.key !== "profile"),
-  ];
+  ] : [];
 
   return (
     <header className="w-full bg-white shadow-sm">
@@ -92,41 +97,40 @@ export default function Header({ searchQuery = "", onSearchChange }: HeaderProps
           </button>
         </div>
 
-        {/* buttons */}
-        {/* <div className="flex ml-25 items-center gap-3">
-          <button
-            type="button"
-            className="h-9 px-4 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-100 cursor-pointer"
+        {/* Conditional rendering: Show auth buttons or avatar */}
+        {!userInfo.isLoggedIn ? (
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => window.location.href = "/register"}
+              className="h-9 px-4 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-100 cursor-pointer"
+            >
+              Sign Up
+            </button>
+            <button
+              type="button"
+              onClick={() => window.location.href = "/login"}
+              className="h-9 px-4 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 cursor-pointer"
+            >
+              Sign In
+            </button>
+          </div>
+        ) : (
+          <Dropdown
+            menu={{ items }}
+            placement="bottomLeft"
+            trigger={["hover"]}
+            overlayClassName="!p-0"
           >
-            Sign Up
-          </button>
-          <button
-            type="button"
-            // className="h-9 px-4 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 cursor-pointer"
-            className="h-9 px-4 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-100 cursor-pointer"
-          >
-            Sign In
-          </button>
-        </div> */}
-
-
-        {/* Avatar Dropdown */}
-        <Dropdown
-          className="ml-27"
-          menu={{ items }}
-          placement="bottomLeft"
-          trigger={["hover"]}
-          overlayClassName="!p-0"
-        >
-          <button className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200 focus:outline-none flex items-center justify-center">
-            <img
-              // src="https://avatar.iran.liara.run/public"
-              src={avatar}
-              alt="avatar"
-              className="w-full h-full object-cover"
-            />
-          </button>
-        </Dropdown>
+            <button className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200 focus:outline-none flex items-center justify-center hover:opacity-80 transition-opacity">
+              <img
+                src={userInfo.avatar}
+                alt="avatar"
+                className="w-full h-full object-cover"
+              />
+            </button>
+          </Dropdown>
+        )}
       </div>
     </header>
   );

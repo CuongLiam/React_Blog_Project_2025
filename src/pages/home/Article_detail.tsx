@@ -16,14 +16,6 @@ export default function Article_detail() {
   const { id } = useParams<{ id: string }>();
   const articleId = id || "0";
 
-  // Check authentication
-  useEffect(() => {
-    const userLogin = localStorage.getItem("userLogin");
-    if (!userLogin) {
-      navigate("/login");
-    }
-  }, [navigate]);
-
   // Redux state
   const { comments, loading: commentsLoading } = useSelector((state: RootState) => state.comments);
   const { replies } = useSelector((state: RootState) => state.replies);
@@ -119,8 +111,19 @@ export default function Article_detail() {
   const likeCount = likes.length;
   const commentCount = comments.length;
 
+  // Check if user is logged in
+  const isUserLoggedIn = () => {
+    const userLogin = localStorage.getItem("userLogin");
+    return !!userLogin;
+  };
+
   // Handlers
   const handleLike = () => {
+    if (!isUserLoggedIn()) {
+      alert("Please sign in to like articles");
+      navigate("/login");
+      return;
+    }
     if (isLiked) {
       dispatch(removeLike({ articleId, userId: currentUserId }));
     } else {
@@ -129,6 +132,11 @@ export default function Article_detail() {
   };
 
   const handleAddComment = () => {
+    if (!isUserLoggedIn()) {
+      alert("Please sign in to comment");
+      navigate("/login");
+      return;
+    }
     if (!newComment.trim()) return;
     dispatch(addComment({
       articleId,
@@ -139,6 +147,11 @@ export default function Article_detail() {
   };
 
   const handleAddReply = (commentId: string) => {
+    if (!isUserLoggedIn()) {
+      alert("Please sign in to reply");
+      navigate("/login");
+      return;
+    }
     if (!replyContent.trim()) return;
     dispatch(addReply({
       commentId,
