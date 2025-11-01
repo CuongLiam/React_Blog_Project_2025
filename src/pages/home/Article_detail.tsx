@@ -16,7 +16,7 @@ export default function Article_detail() {
   const { id } = useParams<{ id: string }>();
   const articleId = id || "0";
 
-  // Redux selectors
+  // Redux state
   const { comments, loading: commentsLoading } = useSelector((state: RootState) => state.comments);
   const { replies } = useSelector((state: RootState) => state.replies);
   const { likes } = useSelector((state: RootState) => state.likes);
@@ -30,12 +30,28 @@ export default function Article_detail() {
   const [replyContent, setReplyContent] = useState("");
   const [showReplies, setShowReplies] = useState<string[]>([]);
 
-  // Current user (you can get this from auth context/redux)
-  const currentUserId = "1"; // Replace with actual current user ID
+  // Get current user from localStorage
+  const getCurrentUserId = () => {
+    try {
+      const userLogin = localStorage.getItem("userLogin");
+      if (userLogin) {
+        const userData = JSON.parse(userLogin);
+        const user = userData?.data?.[0] || userData?.[0] || userData;
+        return user.id || "1";
+      }
+    } catch {
+      return "1";
+    }
+    return "1";
+  };
 
-  // Fetch article data
+  const currentUserId = getCurrentUserId();
+
+  // Fetch data
   useEffect(() => {
-    const fetchArticle = async () => {
+    const fetchData = async () => {
+      if (articleId === "0") return;
+
       try {
         const response = await axios.get(`${import.meta.env.VITE_SV_HOST}/articles/${articleId}`);
         setArticle(response.data);
@@ -46,51 +62,56 @@ export default function Article_detail() {
       }
     };
 
-    if (articleId !== "0") {
-      fetchArticle();
-      // Fetch related data
-      dispatch(fetchCommentsByArticle(articleId));
-      dispatch(fetchAllReplies());
-      dispatch(fetchLikesByArticle(articleId));
-      dispatch(fetchUsers());
-    }
+    fetchData();
+    dispatch(fetchCommentsByArticle(articleId));
+    dispatch(fetchAllReplies());
+    dispatch(fetchLikesByArticle(articleId));
+    dispatch(fetchUsers());
   }, [articleId, dispatch]);
 
+  // Loading state
   if (loading) {
     return (
       <>
         <Header />
         <div className="max-w-4xl mx-auto px-8 py-16 text-center">
-          <div className="text-gray-500">Loading article...</div>
+          <i className="fas fa-spinner fa-spin text-4xl text-gray-300 mb-4"></i>
+          <p className="text-gray-500">Loading article...</p>
         </div>
         <Footer />
       </>
     );
   }
 
+  // Not found state
   if (!article) {
     return (
       <>
         <Header />
         <div className="max-w-4xl mx-auto px-8 py-16 text-center">
+          <i className="fas fa-file-circle-question text-6xl text-gray-300 mb-4"></i>
           <h1 className="text-3xl font-bold mb-4">Article Not Found</h1>
-          <button 
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+          <p className="text-gray-500 mb-6">The article you're looking for doesn't exist or has been removed.</p>
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             <i className="fas fa-arrow-left"></i>
-            Back
-          </button>
+            Back to Home
+          </Link>
         </div>
         <Footer />
       </>
     );
   }
 
+  // Computed values
   const author = users.find((u: any) => u.id === article.userId);
   const isLiked = likes.some((like: any) => like.userId === currentUserId);
+  const likeCount = likes.length;
+  const commentCount = comments.length;
 
-  // Handle like/unlike
+  // Handlers
   const handleLike = () => {
     if (isLiked) {
       dispatch(removeLike({ articleId, userId: currentUserId }));
@@ -99,7 +120,6 @@ export default function Article_detail() {
     }
   };
 
-  // Handle add comment
   const handleAddComment = () => {
     if (!newComment.trim()) return;
     dispatch(addComment({
@@ -110,7 +130,6 @@ export default function Article_detail() {
     setNewComment("");
   };
 
-  // Handle add reply
   const handleAddReply = (commentId: string) => {
     if (!replyContent.trim()) return;
     dispatch(addReply({
@@ -122,16 +141,14 @@ export default function Article_detail() {
     setReplyTo(null);
   };
 
-  // Toggle replies visibility
   const toggleReplies = (commentId: string) => {
-    if (showReplies.includes(commentId)) {
-      setShowReplies(showReplies.filter((id) => id !== commentId));
-    } else {
-      setShowReplies([...showReplies, commentId]);
-    }
+    setShowReplies(prev =>
+      prev.includes(commentId)
+        ? prev.filter(id => id !== commentId)
+        : [...prev, commentId]
+    );
   };
 
-  // Get replies for a comment
   const getCommentReplies = (commentId: string) => {
     return replies.filter((reply: any) => reply.commentId === commentId);
   };
@@ -183,15 +200,11 @@ export default function Article_detail() {
               } hover:text-red-500 transition-colors`}
             >
               <i className={`${isLiked ? "fas" : "far"} fa-heart text-xl`}></i>
-              <span className="font-semibold">
-                {likes.length} Like{likes.length !== 1 ? "s" : ""}
-              </span>
+              <span className="font-semibold">{likeCount} Like{likeCount !== 1 ? "s" : ""}</span>
             </button>
             <div className="flex items-center gap-2 text-gray-600">
               <i className="far fa-comment text-xl"></i>
-              <span className="font-semibold">
-                {comments.length} Comment{comments.length !== 1 ? "s" : ""}
-              </span>
+              <span className="font-semibold">{commentCount} Comment{commentCount !== 1 ? "s" : ""}</span>
             </div>
           </div>
         </div>
@@ -199,7 +212,7 @@ export default function Article_detail() {
         {/* Comments Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-6">
-            {comments.length} Comment{comments.length !== 1 ? "s" : ""}
+            {commentCount} Comment{commentCount !== 1 ? "s" : ""}
           </h2>
 
           {/* Add Comment */}
@@ -213,16 +226,31 @@ export default function Article_detail() {
             />
             <button
               onClick={handleAddComment}
-              disabled={commentsLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              disabled={commentsLoading || !newComment.trim()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {commentsLoading ? "Posting..." : "Post Comment"}
+              {commentsLoading ? (
+                <>
+                  <i className="fas fa-spinner fa-spin mr-2"></i>
+                  Posting...
+                </>
+              ) : (
+                "Post Comment"
+              )}
             </button>
           </div>
 
           {/* Comments List */}
           {commentsLoading ? (
-            <div className="text-center py-8 text-gray-500">Loading comments...</div>
+            <div className="text-center py-8 text-gray-500">
+              <i className="fas fa-spinner fa-spin text-2xl mb-2"></i>
+              <p>Loading comments...</p>
+            </div>
+          ) : commentCount === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <i className="far fa-comment text-4xl mb-3"></i>
+              <p className="text-lg">No comments yet. Be the first to comment!</p>
+            </div>
           ) : (
             <div className="space-y-6">
               {comments.map((comment: any) => {
@@ -250,16 +278,12 @@ export default function Article_detail() {
 
                     {/* Comment Actions */}
                     <div className="flex items-center gap-4 ml-13 mb-3">
-                      <button className="text-sm text-gray-600 hover:text-blue-600 flex items-center gap-1">
-                        <i className="far fa-thumbs-up"></i>
-                        <span>Like</span>
-                      </button>
                       <button
                         onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
-                        className="text-sm text-gray-600 hover:text-blue-600 flex items-center gap-1"
+                        className="text-sm text-gray-600 hover:text-blue-600 flex items-center gap-1 transition-colors"
                       >
                         <i className="far fa-comment"></i>
-                        <span>{commentReplies.length} Replies</span>
+                        <span>Reply {commentReplies.length > 0 && `(${commentReplies.length})`}</span>
                       </button>
                     </div>
 
@@ -306,7 +330,7 @@ export default function Article_detail() {
 
                     {/* Reply Input */}
                     {replyTo === comment.id && (
-                      <div className="ml-13 mt-4">
+                      <div className="ml-13 mt-4 bg-white rounded-lg p-4">
                         <textarea
                           value={replyContent}
                           onChange={(e) => setReplyContent(e.target.value)}
@@ -317,7 +341,8 @@ export default function Article_detail() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleAddReply(comment.id)}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                            disabled={!replyContent.trim()}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             Reply
                           </button>
@@ -326,7 +351,7 @@ export default function Article_detail() {
                               setReplyTo(null);
                               setReplyContent("");
                             }}
-                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm"
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm"
                           >
                             Cancel
                           </button>

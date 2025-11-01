@@ -291,6 +291,20 @@
       "userId": "1",
       "content": "hi",
       "createdAt": "2025-10-31T02:23:34.910Z"
+    },
+    {
+      "id": "c388",
+      "articleId": "1ff1",
+      "userId": "2",
+      "content": "he",
+      "createdAt": "2025-11-01T10:20:02.424Z"
+    },
+    {
+      "id": "80f7",
+      "articleId": "2",
+      "userId": "2",
+      "content": "yea man",
+      "createdAt": "2025-11-01T10:43:29.983Z"
     }
   ],
   "replies": [
@@ -307,6 +321,13 @@
       "userId": "1",
       "content": "You're welcome! Feel free to ask if you have questions.",
       "createdAt": "2025-01-15T12:30:00.000Z"
+    },
+    {
+      "id": "3d6a",
+      "commentId": "c388",
+      "userId": "2",
+      "content": "hehe",
+      "createdAt": "2025-11-01T10:20:13.016Z"
     }
   ],
   "likes": [
@@ -339,6 +360,12 @@
       "articleId": "3",
       "userId": "1",
       "createdAt": "2025-10-31T02:23:31.062Z"
+    },
+    {
+      "id": "f92e",
+      "articleId": "1ff1",
+      "userId": "2",
+      "createdAt": "2025-11-01T10:19:59.271Z"
     }
   ]
 }
