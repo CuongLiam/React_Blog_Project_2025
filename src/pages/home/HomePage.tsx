@@ -1,13 +1,22 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Header from "../../layouts/user/Header";
 import Footer from "../../layouts/user/Footer";
 
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const ITEMS_PER_PAGE = 6;
   const CATEGORY_PAGE_SIZE = 5;
+
+  // Check authentication
+  useEffect(() => {
+    const userLogin = localStorage.getItem("userLogin");
+    if (!userLogin) {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   // State
   const [articles, setArticles] = useState([]);

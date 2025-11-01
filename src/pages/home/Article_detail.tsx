@@ -16,6 +16,14 @@ export default function Article_detail() {
   const { id } = useParams<{ id: string }>();
   const articleId = id || "0";
 
+  // Check authentication
+  useEffect(() => {
+    const userLogin = localStorage.getItem("userLogin");
+    if (!userLogin) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   // Redux state
   const { comments, loading: commentsLoading } = useSelector((state: RootState) => state.comments);
   const { replies } = useSelector((state: RootState) => state.replies);

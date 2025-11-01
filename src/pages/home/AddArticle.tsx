@@ -18,6 +18,14 @@ const MOODS = [
 
 export default function AddArticle() {
   const navigate = useNavigate();
+
+  // Check authentication
+  useEffect(() => {
+    const userLogin = localStorage.getItem("userLogin");
+    if (!userLogin) {
+      navigate("/login");
+    }
+  }, [navigate]);
   
   // State
   const [formData, setFormData] = useState({

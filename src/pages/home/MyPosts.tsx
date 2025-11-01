@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Header from "../../layouts/user/Header";
 import Footer from "../../layouts/user/Footer";
 import axios from "axios";
@@ -19,6 +19,16 @@ const MOODS = [
 ];
 
 export default function MyPosts() {
+  const navigate = useNavigate();
+
+  // Check authentication
+  useEffect(() => {
+    const userLogin = localStorage.getItem("userLogin");
+    if (!userLogin) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   // State
   const [currentPage, setCurrentPage] = useState(1);
   const [articles, setArticles] = useState([]);
