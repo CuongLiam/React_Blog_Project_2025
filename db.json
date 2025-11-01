@@ -224,12 +224,12 @@
     },
     {
       "id": "625b",
-      "title": "asd",
-      "category": "Personal diary",
+      "title": "asd asdasd",
+      "category": "Travel & Adventure",
       "mood": "happy",
-      "content": "asd",
+      "content": "asdas dasd sad sa",
       "status": "public",
-      "image": "",
+      "image": "https://res.cloudinary.com/ddcm8tule/image/upload/v1761991113/avatars/usg6akuuwys4tyvha61j.png",
       "userId": "2",
       "date": "2025-10-31"
     },
@@ -243,6 +243,17 @@
       "image": "https://res.cloudinary.com/ddcm8tule/image/upload/v1761879880/avatars/wwl7nypug1hwugruuaku.png",
       "userId": "2",
       "date": "2025-10-31"
+    },
+    {
+      "id": "1ff1",
+      "title": "hello world",
+      "category": "Family & Relationships",
+      "mood": "happy",
+      "content": "asdasdsada",
+      "status": "public",
+      "image": "https://res.cloudinary.com/ddcm8tule/image/upload/v1761991081/avatars/z94auoukzgvdliseniam.png",
+      "userId": "2",
+      "date": "2025-11-01"
     }
   ],
   "comments": [
