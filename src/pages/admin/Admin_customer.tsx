@@ -1,48 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import AdminHeader from '../../layouts/admin/Header';
 import Sidebar_menu from '../../layouts/admin/Sidebar_menu';
-import { useSelector, useDispatch } from 'react-redux';
 import { fetchUsers } from '../../store/slices/userSlice';
 import type { AppDispatch } from '../../store';
 
+const ITEMS_PER_PAGE = 7;
+
 export default function Admin_customer() {
+  // Redux
   const dispatch = useDispatch<AppDispatch>();
   const { users, loading, error } = useSelector((state: any) => state.users);
+  
+  // State
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortAsc, setSortAsc] = useState(true);
-  const ITEMS_PER_PAGE = 7;
 
+  // Fetch users on mount
   useEffect(() => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
-  // Filter users based on search
-  let filteredUsers = users.filter((user: any) =>
-    (user.displayName || user.username || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (user.email || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Computed values
+  const filteredUsers = users
+    .filter((user: any) =>
+      (user.displayName || user.username || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.email || "").toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a: any, b: any) => {
+      const nameA = (a.displayName || a.username || "").toLowerCase();
+      const nameB = (b.displayName || b.username || "").toLowerCase();
+      if (nameA < nameB) return sortAsc ? -1 : 1;
+      if (nameA > nameB) return sortAsc ? 1 : -1;
+      return 0;
+    });
 
-  // Sort users by name
-  filteredUsers = filteredUsers.sort((a: any, b: any) => {
-    const nameA = (a.displayName || a.username || "").toLowerCase();
-    const nameB = (b.displayName || b.username || "").toLowerCase();
-    if (nameA < nameB) return sortAsc ? -1 : 1;
-    if (nameA > nameB) return sortAsc ? 1 : -1;
-    return 0;
-  });
-
-  // Calculate pagination
   const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const currentUsers = filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+  // Handlers
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
   const handleSortClick = () => {
     setSortAsc((prev) => !prev);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   return (
@@ -68,7 +77,7 @@ export default function Admin_customer() {
                   type="text"
                   placeholder="Search user"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
                 />
               </div>
@@ -99,11 +108,22 @@ export default function Admin_customer() {
               {/* Table Body */}
               <div className="divide-y divide-gray-200">
                 {loading ? (
-                  <div className="px-6 py-4 text-center text-gray-500">Loading...</div>
+                  <div className="px-6 py-12 text-center">
+                    <i className="fas fa-spinner fa-spin text-3xl text-gray-400 mb-3"></i>
+                    <p className="text-gray-500">Loading users...</p>
+                  </div>
                 ) : error ? (
-                  <div className="px-6 py-4 text-center text-red-500">{error}</div>
+                  <div className="px-6 py-12 text-center">
+                    <i className="fas fa-exclamation-circle text-3xl text-red-400 mb-3"></i>
+                    <p className="text-red-500">{error}</p>
+                  </div>
                 ) : currentUsers.length === 0 ? (
-                  <div className="px-6 py-4 text-center text-gray-500">No users found.</div>
+                  <div className="px-6 py-12 text-center">
+                    <i className="fas fa-users text-4xl text-gray-300 mb-3"></i>
+                    <p className="text-gray-500">
+                      {searchTerm ? `No users found matching "${searchTerm}"` : 'No users yet'}
+                    </p>
+                  </div>
                 ) : (
                   currentUsers.map((user: any) => (
                     <div key={user.id} className="px-6 py-4">

@@ -1,65 +1,108 @@
-
-import React, { useEffect, useState } from 'react';
-import { Modal } from 'antd';
+import { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Modal, message } from 'antd';
 import AdminHeader from '../../layouts/admin/Header';
 import Sidebar_menu from '../../layouts/admin/Sidebar_menu';
-import { useSelector, useDispatch } from 'react-redux';
 import { fetchEntries, addEntry, editEntry, deleteEntry } from '../../store/slices/entrySlice';
 import type { AppDispatch } from '../../store';
 
 const ITEMS_PER_PAGE = 5;
 
 export default function Admin_entries() {
+  // Redux
   const dispatch = useDispatch<AppDispatch>();
   const { entries, loading, error } = useSelector((state: any) => state.entries);
+  
+  // State
   const [categoryName, setCategoryName] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Fetch entries on mount
   useEffect(() => {
     dispatch(fetchEntries());
   }, [dispatch]);
 
-  // Filter categories based on search
+  // Computed values
   const filteredCategories = entries.filter((category: any) =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredCategories.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const currentCategories = filteredCategories.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  // Add new category (persisted to backend)
+  // Handlers
   const handleAddCategory = async () => {
-    if (!categoryName.trim()) return;
-    await dispatch(addEntry({ name: categoryName }));
-    setCategoryName("");
+    if (!categoryName.trim()) {
+      message.warning("Category name cannot be empty!");
+      return;
+    }
+    try {
+      await dispatch(addEntry({ name: categoryName }));
+      setCategoryName("");
+      message.success("Category added successfully!");
+    } catch {
+      message.error("Failed to add category!");
+    }
   };
 
-  // Delete category (persisted to backend with confirmation)
   const handleDeleteCategory = (id: number) => {
     Modal.confirm({
-      title: 'Are you sure you want to delete this category?',
-      content: 'This action cannot be undone.',
+      title: 'Delete Category',
+      content: 'Are you sure you want to delete this category? This action cannot be undone.',
       okText: 'Delete',
       okType: 'danger',
       cancelText: 'Cancel',
       onOk: async () => {
-        await dispatch(deleteEntry(id));
+        try {
+          await dispatch(deleteEntry(id));
+          message.success("Category deleted successfully!");
+        } catch {
+          message.error("Failed to delete category!");
+        }
       },
     });
   };
 
-  // Edit category (persisted to backend)
-  const handleEditCategory = async (id: number) => {
+  const handleEditCategory = (id: number) => {
     const category = entries.find((cat: any) => cat.id === id);
-    if (category) {
-      const newName = prompt("Enter new category name:", category.name);
-      if (newName && newName.trim()) {
-        await dispatch(editEntry({ id, name: newName }));
-      }
-    }
+    if (!category) return;
+
+    Modal.confirm({
+      title: 'Edit Category',
+      content: (
+        <div>
+          <label className="block text-sm font-medium mb-2">Category Name</label>
+          <input 
+            id="edit-category-name" 
+            defaultValue={category.name} 
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+          />
+        </div>
+      ),
+      okText: 'Save',
+      cancelText: 'Cancel',
+      width: 500,
+      onOk: async () => {
+        const newName = (document.getElementById("edit-category-name") as HTMLInputElement)?.value;
+        if (!newName?.trim()) {
+          message.error("Category name cannot be empty!");
+          return;
+        }
+        try {
+          await dispatch(editEntry({ id, name: newName }));
+          message.success("Category updated successfully!");
+        } catch {
+          message.error("Failed to update category!");
+        }
+      },
+    });
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   return (
@@ -80,7 +123,7 @@ export default function Admin_entries() {
                 type="text"
                 placeholder="Search Article Categories"
                 value={searchTerm}
-                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-12 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -141,9 +184,22 @@ export default function Admin_entries() {
 
                   {/* Table Body */}
                   <div className="divide-y divide-gray-200 bg-white">
-                    {currentCategories.length === 0 ? (
-                      <div className="px-6 py-8 text-center text-gray-500">
-                        No categories found
+                    {loading ? (
+                      <div className="px-6 py-12 text-center">
+                        <i className="fas fa-spinner fa-spin text-3xl text-gray-400 mb-3"></i>
+                        <p className="text-gray-500">Loading categories...</p>
+                      </div>
+                    ) : error ? (
+                      <div className="px-6 py-12 text-center">
+                        <i className="fas fa-exclamation-circle text-3xl text-red-400 mb-3"></i>
+                        <p className="text-red-500">{error}</p>
+                      </div>
+                    ) : currentCategories.length === 0 ? (
+                      <div className="px-6 py-12 text-center">
+                        <i className="fas fa-folder-open text-4xl text-gray-300 mb-3"></i>
+                        <p className="text-gray-500">
+                          {searchTerm ? `No categories found matching "${searchTerm}"` : 'No categories yet'}
+                        </p>
                       </div>
                     ) : (
                       currentCategories.map((category, idx) => (

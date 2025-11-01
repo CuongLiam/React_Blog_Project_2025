@@ -1,92 +1,110 @@
-
-import React from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { Modal, message } from "antd";
+import axios from "axios";
 import AdminHeader from "../../layouts/admin/Header";
 import Sidebar_menu from "../../layouts/admin/Sidebar_menu";
-import { Link } from "react-router";
-import axios from "axios";
-import { Modal, message } from "antd";
-
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
 import { fetchArticles } from "../../store/slices/articleSlice";
 import type { AppDispatch } from "../../store";
 
 const ITEMS_PER_PAGE = 5;
 
 export default function AdminArticles() {
+  // Redux
   const dispatch = useDispatch<AppDispatch>();
   const { articles, loading, error } = useSelector((state: any) => state.articles);
+  
+  // State
   const [currentPage, setCurrentPage] = useState(1);
   const [statusEdits, setStatusEdits] = useState<{[id:string]: string}>({});
 
+  // Fetch articles on mount
   useEffect(() => {
     dispatch(fetchArticles());
   }, [dispatch]);
 
-  // Pagination
+  // Computed values
   const totalPages = Math.ceil(articles.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const currentArticles = articles.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-
-  // Status change handler (API PATCH)
+  // Handlers
   const handleStatusChange = async (id: string, value: string) => {
-    setStatusEdits({ ...statusEdits, [id]: value });
+    setStatusEdits((prev) => ({ ...prev, [id]: value }));
     try {
       await axios.patch(`${import.meta.env.VITE_SV_HOST}/articles/${id}`, { status: value });
       dispatch(fetchArticles());
-      message.success("Đã cập nhật trạng thái bài viết!");
-    } catch (err) {
-      message.error("Lỗi khi cập nhật trạng thái!");
+      message.success("Article status updated successfully!");
+    } catch {
+      message.error("Failed to update article status!");
     }
   };
 
-  // Edit handler (prompt + PATCH)
-  const handleEdit = async (article: any) => {
+  const handleEdit = (article: any) => {
     Modal.confirm({
-      title: "Chỉnh sửa bài viết",
+      title: "Edit Article",
       content: (
         <div>
-          <div className="mb-2">Tiêu đề hiện tại: <b>{article.title}</b></div>
-          <input id="edit-title" defaultValue={article.title} className="w-full border rounded px-2 py-1 mb-2" />
-          <div className="mb-2">Nội dung hiện tại:</div>
-          <textarea id="edit-content" defaultValue={article.content} className="w-full border rounded px-2 py-1" rows={4} />
+          <div className="mb-3">
+            <label className="block text-sm font-medium mb-1">Title</label>
+            <input 
+              id="edit-title" 
+              defaultValue={article.title} 
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Content</label>
+            <textarea 
+              id="edit-content" 
+              defaultValue={article.content} 
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              rows={5} 
+            />
+          </div>
         </div>
       ),
-      okText: "Lưu",
-      cancelText: "Hủy",
+      okText: "Save",
+      cancelText: "Cancel",
+      width: 600,
       async onOk() {
         const newTitle = (document.getElementById("edit-title") as HTMLInputElement)?.value;
         const newContent = (document.getElementById("edit-content") as HTMLTextAreaElement)?.value;
+        
+        if (!newTitle?.trim() || !newContent?.trim()) {
+          message.error("Title and content cannot be empty!");
+          return;
+        }
+
         try {
           await axios.patch(`${import.meta.env.VITE_SV_HOST}/articles/${article.id}`, {
             title: newTitle,
             content: newContent,
           });
           dispatch(fetchArticles());
-          message.success("Đã cập nhật bài viết!");
-        } catch (err) {
-          message.error("Lỗi khi cập nhật bài viết!");
+          message.success("Article updated successfully!");
+        } catch {
+          message.error("Failed to update article!");
         }
       },
     });
   };
 
-  // Delete handler (Antd Modal + DELETE)
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     Modal.confirm({
-      title: "Bạn có chắc muốn xoá bài viết này?",
-      content: "Hành động này không thể hoàn tác.",
-      okText: "Xoá",
+      title: "Delete Article",
+      content: "Are you sure you want to delete this article? This action cannot be undone.",
+      okText: "Delete",
       okType: "danger",
-      cancelText: "Hủy",
+      cancelText: "Cancel",
       async onOk() {
         try {
           await axios.delete(`${import.meta.env.VITE_SV_HOST}/articles/${id}`);
           dispatch(fetchArticles());
-          message.success("Đã xoá bài viết!");
-        } catch (err) {
-          message.error("Lỗi khi xoá bài viết!");
+          message.success("Article deleted successfully!");
+        } catch {
+          message.error("Failed to delete article!");
         }
       },
     });
@@ -102,14 +120,16 @@ export default function AdminArticles() {
             <div className="flex items-start w-1/4">
               <Link
                 to="/admin/add-articles"
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2"
                 style={{ minWidth: 180 }}
               >
-                Thêm mới bài viết
+                <i className="fas fa-plus"></i>
+                Add New Article
               </Link>
             </div>
             <div className="ml-40">
-              <h2 className="text-3xl font-bold text-gray-900">Quản lý bài viết</h2>
+              <h2 className="text-3xl font-bold text-gray-900">Article Management</h2>
+              <p className="text-sm text-gray-500 mt-1">{articles.length} total articles</p>
             </div>
           </div>
 
@@ -117,11 +137,20 @@ export default function AdminArticles() {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="overflow-x-auto">
                 {loading ? (
-                  <div className="text-center py-8 text-gray-500">Đang tải bài viết...</div>
+                  <div className="text-center py-12">
+                    <i className="fas fa-spinner fa-spin text-3xl text-gray-400 mb-3"></i>
+                    <p className="text-gray-500">Loading articles...</p>
+                  </div>
                 ) : error ? (
-                  <div className="text-center py-8 text-red-500">{error}</div>
+                  <div className="text-center py-12">
+                    <i className="fas fa-exclamation-circle text-3xl text-red-400 mb-3"></i>
+                    <p className="text-red-500">{error}</p>
+                  </div>
                 ) : currentArticles.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">Không có bài viết nào.</div>
+                  <div className="text-center py-12">
+                    <i className="far fa-file-alt text-4xl text-gray-300 mb-3"></i>
+                    <p className="text-gray-500">No articles yet</p>
+                  </div>
                 ) : (
                   <table className="w-full text-left">
                     <thead>

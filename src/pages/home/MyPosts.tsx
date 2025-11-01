@@ -5,8 +5,21 @@ import Footer from "../../layouts/user/Footer";
 import axios from "axios";
 import { uploadImageToCloudinary } from "../../upload/cloudinary";
 
+const ITEMS_PER_PAGE = 6;
+
+const MOODS = [
+  { value: "happy", emoji: "😊", label: "Happy" },
+  { value: "excited", emoji: "🤩", label: "Excited" },
+  { value: "peaceful", emoji: "😌", label: "Peaceful" },
+  { value: "anxious", emoji: "😰", label: "Anxious" },
+  { value: "stressed", emoji: "😣", label: "Stressed" },
+  { value: "grateful", emoji: "🙏", label: "Grateful" },
+  { value: "motivated", emoji: "💪", label: "Motivated" },
+  { value: "overwhelmed", emoji: "😵", label: "Overwhelmed" },
+];
+
 export default function MyPosts() {
-  const ITEMS_PER_PAGE = 6;
+  // State
   const [currentPage, setCurrentPage] = useState(1);
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,27 +44,22 @@ export default function MyPosts() {
   const [deletingArticleId, setDeletingArticleId] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const moods = [
-    { value: "happy", emoji: "😊", label: "Happy" },
-    { value: "excited", emoji: "🤩", label: "Excited" },
-    { value: "peaceful", emoji: "😌", label: "Peaceful" },
-    { value: "anxious", emoji: "😰", label: "Anxious" },
-    { value: "stressed", emoji: "😣", label: "Stressed" },
-    { value: "grateful", emoji: "🙏", label: "Grateful" },
-    { value: "motivated", emoji: "💪", label: "Motivated" },
-    { value: "overwhelmed", emoji: "😵", label: "Overwhelmed" },
-  ];
-
   // Get current user ID from localStorage
-  let currentUserId = "";
-  try {
-    const userLogin = localStorage.getItem("userLogin");
-    if (userLogin) {
-      const userData = JSON.parse(userLogin);
-      const user = userData?.data?.[0] || userData?.[0] || userData;
-      currentUserId = user.id;
+  const getCurrentUserId = () => {
+    try {
+      const userLogin = localStorage.getItem("userLogin");
+      if (userLogin) {
+        const userData = JSON.parse(userLogin);
+        const user = userData?.data?.[0] || userData?.[0] || userData;
+        return user.id || "";
+      }
+    } catch {
+      return "";
     }
-  } catch {}
+    return "";
+  };
+
+  const currentUserId = getCurrentUserId();
 
   // Fetch articles and categories from API
   useEffect(() => {
@@ -432,7 +440,7 @@ export default function MyPosts() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
-                  {moods.map((mood) => (
+                  {MOODS.map((mood) => (
                     <option key={mood.value} value={mood.value}>
                       {mood.emoji} {mood.label}
                     </option>

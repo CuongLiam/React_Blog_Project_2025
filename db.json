@@ -43,6 +43,17 @@
       "avatar": "",
       "status": "ACTIVE",
       "banReason": ""
+    },
+    {
+      "id": "1761995094143",
+      "username": "Bobby Fishcher",
+      "password": "123456",
+      "role": "USER",
+      "displayName": "Bobby Fishcher",
+      "email": "bobby@gmail.com",
+      "avatar": "",
+      "status": "ACTIVE",
+      "banReason": ""
     }
   ],
   "categories": [
@@ -312,6 +323,13 @@
       "userId": "1",
       "content": "helo",
       "createdAt": "2025-11-01T10:45:57.687Z"
+    },
+    {
+      "id": "877e",
+      "articleId": "98e5",
+      "userId": "1761857388605",
+      "content": "sd",
+      "createdAt": "2025-11-01T11:04:18.847Z"
     }
   ],
   "replies": [
