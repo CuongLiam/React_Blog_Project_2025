@@ -221,6 +221,28 @@
       "image": "https://plus.unsplash.com/premium_photo-1666901328734-3c6eb9b6b979?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cmFuZG9tfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600",
       "date": "2025-10-31",
       "userId": "1761857388605"
+    },
+    {
+      "id": "625b",
+      "title": "asd",
+      "category": "Personal diary",
+      "mood": "happy",
+      "content": "asd",
+      "status": "public",
+      "image": "",
+      "userId": "2",
+      "date": "2025-10-31"
+    },
+    {
+      "id": "98e5",
+      "title": "asdadasd",
+      "category": "Thoughts",
+      "mood": "happy",
+      "content": "asdasdasds",
+      "status": "public",
+      "image": "https://res.cloudinary.com/ddcm8tule/image/upload/v1761879880/avatars/wwl7nypug1hwugruuaku.png",
+      "userId": "2",
+      "date": "2025-10-31"
     }
   ],
   "comments": [
@@ -251,6 +273,13 @@
       "userId": "1",
       "content": "Hi!",
       "createdAt": "2025-10-31T02:06:33.167Z"
+    },
+    {
+      "id": "680d",
+      "articleId": "3",
+      "userId": "1",
+      "content": "hi",
+      "createdAt": "2025-10-31T02:23:34.910Z"
     }
   ],
   "replies": [
@@ -293,6 +322,12 @@
       "articleId": "5f6f",
       "userId": "1",
       "createdAt": "2025-10-31T02:05:54.054Z"
+    },
+    {
+      "id": "00da",
+      "articleId": "3",
+      "userId": "1",
+      "createdAt": "2025-10-31T02:23:31.062Z"
     }
   ]
 }

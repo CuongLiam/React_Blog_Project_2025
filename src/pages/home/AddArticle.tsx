@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import Header from "../../layouts/user/Header";
 import Footer from "../../layouts/user/Footer";
+import axios from "axios";
+import { uploadImageToCloudinary } from "../../upload/cloudinary";
 
 export default function AddArticle() {
   const navigate = useNavigate();
@@ -13,13 +15,23 @@ export default function AddArticle() {
     status: "public",
     image: null as File | null,
   });
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    []
+  );
 
-  const categories = [
-    "Daily Journal",
-    "Work & Career",
-    "Personal Thoughts",
-    "Emotions & Feelings",
-  ];
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_SV_HOST}/categories`);
+        setCategories(res.data);
+      } catch {
+        setCategories([]);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const moods = [
     { value: "happy", emoji: "😊", label: "Happy" },
@@ -33,7 +45,9 @@ export default function AddArticle() {
   ];
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -45,13 +59,50 @@ export default function AddArticle() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Get current user ID from localStorage
+  let currentUserId = "";
+  try {
+    const userLogin = localStorage.getItem("userLogin");
+    if (userLogin) {
+      const userData = JSON.parse(userLogin);
+      const user = userData?.data?.[0] || userData?.[0] || userData;
+      currentUserId = user.id;
+    }
+  } catch {}
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would normally send the data to your backend
-    console.log("Form data:", formData);
-    // For now, just navigate back to my posts
-    alert("Article added successfully!");
-    navigate("/my-posts");
+    setLoading(true);
+
+    try {
+      // 1) Upload image if present
+      let imageUrl = "";
+      if (formData.image) {
+        // use your helper (this throws if upload fails)
+        imageUrl = await uploadImageToCloudinary(formData.image, "articles");
+      }
+
+      // 2) Prepare payload (exclude File object)
+      const { image, ...rest } = formData; // rest contains title, category, mood, content, status
+      const newArticle = {
+        ...rest,
+        image: imageUrl, // empty string if no image
+        userId: currentUserId,
+        date: new Date().toISOString().slice(0, 10),
+        category: categories.find((c) => c.id === formData.category)?.name || "",
+      };
+
+      // 3) Send to your server
+      await axios.post(`${import.meta.env.VITE_SV_HOST}/articles`, newArticle);
+
+      alert("Article added successfully!");
+      navigate("/my-posts");
+    } catch (err) {
+      console.error("Add article error:", err);
+      alert("Failed to add article!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,10 +111,7 @@ export default function AddArticle() {
       <div className="max-w-4xl mx-auto px-8 py-8">
         {/* Header with close button */}
         <div className="flex items-center justify-between mb-8">
-          <Link
-            to="/my-posts"
-            className="text-blue-500 hover:underline text-sm"
-          >
+          <Link to="/my-posts" className="text-blue-500 hover:underline text-sm">
             back
           </Link>
           <Link
@@ -105,8 +153,8 @@ export default function AddArticle() {
             >
               <option value="">Select a category</option>
               {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
                 </option>
               ))}
             </select>
@@ -207,8 +255,9 @@ export default function AddArticle() {
           <button
             type="submit"
             className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium"
+            disabled={loading}
           >
-            Add
+            {loading ? "Adding..." : "Add"}
           </button>
         </form>
       </div>

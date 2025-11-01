@@ -1,42 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import Header from "../../layouts/user/Header";
 import Footer from "../../layouts/user/Footer";
-import { articles } from "../../data/fakeData";
+import axios from "axios";
 
 export default function MyPosts() {
   const ITEMS_PER_PAGE = 6;
   const [currentPage, setCurrentPage] = useState(1);
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Filter articles by current user (hardcoded userId = 1 for demo)
-  const currentUserId = 1;
-  const myArticles = articles.filter((article) => article.userId === currentUserId);
+  // Get current user ID from localStorage
+  let currentUserId = "";
+  try {
+    const userLogin = localStorage.getItem("userLogin");
+    if (userLogin) {
+      const userData = JSON.parse(userLogin);
+      const user = userData?.data?.[0] || userData?.[0] || userData;
+      currentUserId = user.id;
+    }
+  } catch {}
 
-  // Calculate pagination
+  // Fetch articles from API
+  useEffect(() => {
+    const fetchArticles = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_SV_HOST}/articles`);
+        setArticles(res.data);
+      } catch {
+        setArticles([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchArticles();
+  }, []);
+
+  // Filter articles by current user
+  const myArticles = articles.filter((article: any) => article.userId === currentUserId);
+
+  // Pagination
   const totalPages = Math.ceil(myArticles.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentArticles = myArticles.slice(startIndex, endIndex);
 
-  // Handle pagination
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Generate page numbers
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
-    
     if (totalPages <= 10) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       if (currentPage <= 3) {
         for (let i = 1; i <= 3; i++) pages.push(i);
         pages.push("...");
-        for (let i = 8; i <= 10; i++) pages.push(i);
+        for (let i = totalPages - 2; i <= totalPages; i++) pages.push(i);
       } else if (currentPage >= totalPages - 2) {
         pages.push(1, 2, "...");
         for (let i = totalPages - 2; i <= totalPages; i++) pages.push(i);
@@ -44,7 +67,6 @@ export default function MyPosts() {
         pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
       }
     }
-    
     return pages;
   };
 
@@ -52,18 +74,12 @@ export default function MyPosts() {
     <>
       <Header />
       <div className="max-w-7xl mx-auto px-8 py-8">
-        {/* Navigation tabs with slide animation */}
+        {/* Navigation tabs */}
         <div className="mb-8 flex gap-6 border-b animate-slide-down">
-          <Link
-            to="/"
-            className="text-gray-600 pb-2 hover:text-blue-600 transition-colors"
-          >
+          <Link to="/" className="text-gray-600 pb-2 hover:text-blue-600 transition-colors">
             All blog posts
           </Link>
-          <Link 
-            to="/my-posts" 
-            className="text-blue-600 font-semibold pb-2 border-b-2 border-blue-600"
-          >
+          <Link to="/my-posts" className="text-blue-600 font-semibold pb-2 border-b-2 border-blue-600">
             All my posts
           </Link>
         </div>
@@ -84,9 +100,14 @@ export default function MyPosts() {
             My Articles ({myArticles.length})
           </h2>
 
-          {currentArticles.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-16 bg-gray-50 rounded-lg">
+              <i className="fas fa-spinner fa-spin text-4xl text-gray-300 mb-4"></i>
+              <p className="text-gray-500 text-lg mb-4">Loading your articles...</p>
+            </div>
+          ) : currentArticles.length > 0 ? (
             <div className="grid grid-cols-3 gap-6">
-              {currentArticles.map((article) => (
+              {currentArticles.map((article: any) => (
                 <div
                   key={article.id}
                   className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white"
