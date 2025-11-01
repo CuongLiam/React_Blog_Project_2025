@@ -15,6 +15,7 @@ export default function HomePage() {
   const [categoryPage, setCategoryPage] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -39,6 +40,12 @@ export default function HomePage() {
     fetchData();
   }, []);
 
+  // Handle search
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
   // Handle category filter (multi-select)
   const handleCategoryClick = (category: string) => {
     setSelectedCategories(prev =>
@@ -50,9 +57,22 @@ export default function HomePage() {
   };
 
   // Computed values
-  const filteredArticles = selectedCategories.length > 0
-    ? articles.filter((article: any) => selectedCategories.includes(article.category))
-    : articles;
+  let filteredArticles = articles;
+  
+  // Apply search filter
+  if (searchQuery.trim()) {
+    filteredArticles = filteredArticles.filter((article: any) =>
+      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.content.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+  
+  // Apply category filter
+  if (selectedCategories.length > 0) {
+    filteredArticles = filteredArticles.filter((article: any) =>
+      selectedCategories.includes(article.category)
+    );
+  }
 
   const recentPosts = [...articles]
     .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -88,7 +108,7 @@ export default function HomePage() {
 
   return (
     <>
-      <Header />
+      <Header searchQuery={searchQuery} onSearchChange={handleSearchChange} />
       <div className="max-w-6xl mx-auto px-8 py-8">
         {/* Recent blog posts */}
         <section className="mb-12">
@@ -219,11 +239,13 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* Active filters */}
-        {selectedCategories.length > 0 && (
-          <div className="mb-6 flex items-center gap-2 text-sm">
+        {/* Active filters and search */}
+        {(selectedCategories.length > 0 || searchQuery.trim()) && (
+          <div className="mb-6 flex items-center gap-2 text-sm flex-wrap">
             <span className="text-gray-600">
-              Showing {filteredArticles.length} article{filteredArticles.length !== 1 ? 's' : ''} in:
+              Showing {filteredArticles.length} article{filteredArticles.length !== 1 ? 's' : ''}
+              {searchQuery.trim() && ` for "${searchQuery}"`}
+              {selectedCategories.length > 0 && " in:"}
             </span>
             {selectedCategories.map(cat => (
               <span key={cat} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
@@ -231,10 +253,13 @@ export default function HomePage() {
               </span>
             ))}
             <button
-              onClick={() => setSelectedCategories([])}
+              onClick={() => {
+                setSelectedCategories([]);
+                setSearchQuery("");
+              }}
               className="ml-2 text-blue-600 hover:underline font-medium"
             >
-              Clear all
+              Clear all filters
             </button>
           </div>
         )}

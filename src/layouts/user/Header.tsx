@@ -1,10 +1,16 @@
 import { Dropdown } from "antd";
-import React from "react";
+import React, { useState } from "react";
 import type { MenuProps } from "antd";
 
 import { items as defaultItems } from "./Header_avt_items";
 
-export default function Header() {
+interface HeaderProps {
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+}
+
+export default function Header({ searchQuery = "", onSearchChange }: HeaderProps = {}) {
+  const [localSearch, setLocalSearch] = useState(searchQuery);
   // Get user info from localStorage
   let avatar = "https://avatar.iran.liara.run/public";
   let displayName = "Rikkei";
@@ -20,6 +26,21 @@ export default function Header() {
       avatar = user.avatar || avatar;
     }
   } catch {}
+
+  // Handle search input
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocalSearch(value);
+    if (onSearchChange) {
+      onSearchChange(value);
+    }
+  };
+
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && onSearchChange) {
+      onSearchChange(localSearch);
+    }
+  };
 
   // Clone dropdown items and inject user info
   const items: MenuProps["items"] = [
@@ -57,12 +78,18 @@ export default function Header() {
           <input
             type="text"
             placeholder="Search for articles..."
-            className="w-full h-9 rounded-md border border-gray-300 bg-white pl-3 pr-9 text-sm"
+            value={localSearch}
+            onChange={handleSearchChange}
+            onKeyPress={handleSearchKeyPress}
+            className="w-full h-9 rounded-md border border-gray-300 bg-white pl-3 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             style={{ width: "1080px" }}
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <button 
+            onClick={() => onSearchChange && onSearchChange(localSearch)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
+          >
             <i className="fa-solid fa-magnifying-glass"></i>
-          </span>
+          </button>
         </div>
 
         {/* buttons */}
