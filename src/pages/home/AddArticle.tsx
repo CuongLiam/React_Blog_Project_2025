@@ -5,8 +5,21 @@ import Footer from "../../layouts/user/Footer";
 import axios from "axios";
 import { uploadImageToCloudinary } from "../../upload/cloudinary";
 
+const MOODS = [
+  { value: "happy", emoji: "😊", label: "Happy" },
+  { value: "excited", emoji: "🤩", label: "Excited" },
+  { value: "peaceful", emoji: "😌", label: "Peaceful" },
+  { value: "anxious", emoji: "😰", label: "Anxious" },
+  { value: "stressed", emoji: "😣", label: "Stressed" },
+  { value: "grateful", emoji: "🙏", label: "Grateful" },
+  { value: "motivated", emoji: "💪", label: "Motivated" },
+  { value: "overwhelmed", emoji: "😵", label: "Overwhelmed" },
+];
+
 export default function AddArticle() {
   const navigate = useNavigate();
+  
+  // State
   const [formData, setFormData] = useState({
     title: "",
     category: "",
@@ -16,11 +29,24 @@ export default function AddArticle() {
     image: null as File | null,
   });
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
-    []
-  );
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
 
-  // Fetch categories from API
+  // Get current user from localStorage
+  const getCurrentUserId = () => {
+    try {
+      const userLogin = localStorage.getItem("userLogin");
+      if (userLogin) {
+        const userData = JSON.parse(userLogin);
+        const user = userData?.data?.[0] || userData?.[0] || userData;
+        return user.id || "";
+      }
+    } catch {
+      return "";
+    }
+    return "";
+  };
+
+  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -33,22 +59,8 @@ export default function AddArticle() {
     fetchCategories();
   }, []);
 
-  const moods = [
-    { value: "happy", emoji: "😊", label: "Happy" },
-    { value: "excited", emoji: "🤩", label: "Excited" },
-    { value: "peaceful", emoji: "😌", label: "Peaceful" },
-    { value: "anxious", emoji: "😰", label: "Anxious" },
-    { value: "stressed", emoji: "😣", label: "Stressed" },
-    { value: "grateful", emoji: "🙏", label: "Grateful" },
-    { value: "motivated", emoji: "💪", label: "Motivated" },
-    { value: "overwhelmed", emoji: "😵", label: "Overwhelmed" },
-  ];
-
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
+  // Form handlers
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
@@ -59,40 +71,28 @@ export default function AddArticle() {
     }
   };
 
-  // Get current user ID from localStorage
-  let currentUserId = "";
-  try {
-    const userLogin = localStorage.getItem("userLogin");
-    if (userLogin) {
-      const userData = JSON.parse(userLogin);
-      const user = userData?.data?.[0] || userData?.[0] || userData;
-      currentUserId = user.id;
-    }
-  } catch {}
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // 1) Upload image if present
+      // Upload image if selected
       let imageUrl = "";
       if (formData.image) {
-        // use your helper (this throws if upload fails)
         imageUrl = await uploadImageToCloudinary(formData.image, "articles");
       }
 
-      // 2) Prepare payload (exclude File object)
-      const { image, ...rest } = formData; // rest contains title, category, mood, content, status
+      // Prepare article data
+      const { image, ...rest } = formData;
       const newArticle = {
         ...rest,
-        image: imageUrl, // empty string if no image
-        userId: currentUserId,
+        image: imageUrl,
+        userId: getCurrentUserId(),
         date: new Date().toISOString().slice(0, 10),
         category: categories.find((c) => c.id === formData.category)?.name || "",
       };
 
-      // 3) Send to your server
+      // Save to server
       await axios.post(`${import.meta.env.VITE_SV_HOST}/articles`, newArticle);
 
       alert("Article added successfully!");
@@ -109,14 +109,14 @@ export default function AddArticle() {
     <>
       <Header />
       <div className="max-w-4xl mx-auto px-8 py-8">
-        {/* Header with close button */}
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <Link to="/my-posts" className="text-blue-500 hover:underline text-sm">
-            back
+          <Link to="/my-posts" className="text-blue-600 hover:underline font-medium">
+            ← Back to My Posts
           </Link>
           <Link
             to="/my-posts"
-            className="w-8 h-8 rounded-full border-2 border-gray-400 flex items-center justify-center hover:bg-gray-100"
+            className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
           >
             <i className="fas fa-times text-gray-600"></i>
           </Link>
@@ -124,7 +124,7 @@ export default function AddArticle() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          <h1 className="text-2xl font-bold mb-6">📝 Add New Article</h1>
+          <h1 className="text-3xl font-bold mb-8">📝 Add New Article</h1>
 
           {/* Title */}
           <div>
@@ -139,11 +139,9 @@ export default function AddArticle() {
             />
           </div>
 
-          {/* Article Categories */}
+          {/* Category */}
           <div>
-            <label className="block text-sm font-semibold mb-2">
-              Article Categories:
-            </label>
+            <label className="block text-sm font-semibold mb-2">Category:</label>
             <select
               name="category"
               value={formData.category}
@@ -170,7 +168,7 @@ export default function AddArticle() {
               className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
-              {moods.map((mood) => (
+              {MOODS.map((mood) => (
                 <option key={mood.value} value={mood.value}>
                   {mood.emoji} {mood.label}
                 </option>
@@ -193,42 +191,43 @@ export default function AddArticle() {
 
           {/* Status */}
           <div>
-            <label className="block text-sm font-semibold mb-2">Status</label>
+            <label className="block text-sm font-semibold mb-2">Visibility:</label>
             <div className="flex gap-6">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
                 <input
                   type="radio"
                   name="status"
                   value="public"
                   checked={formData.status === "public"}
                   onChange={handleInputChange}
-                  className="w-4 h-4"
+                  className="w-4 h-4 cursor-pointer"
                 />
-                <span>public</span>
+                <span className="capitalize">Public</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
                 <input
                   type="radio"
                   name="status"
                   value="private"
                   checked={formData.status === "private"}
                   onChange={handleInputChange}
-                  className="w-4 h-4"
+                  className="w-4 h-4 cursor-pointer"
                 />
-                <span>private</span>
+                <span className="capitalize">Private</span>
               </label>
             </div>
           </div>
 
-          {/* File Upload */}
+          {/* Image Upload */}
           <div>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+            <label className="block text-sm font-semibold mb-2">Cover Image:</label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 hover:border-blue-400 transition-colors">
               <i className="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
               <p className="text-sm text-gray-600 mb-2">
-                Browse and chose the files you want
+                Choose an image for your article
               </p>
-              <p className="text-sm text-gray-600 mb-4">
-                to upload from your computer
+              <p className="text-xs text-gray-500 mb-4">
+                Supported formats: JPG, PNG, GIF (Max 5MB)
               </p>
               <input
                 type="file"
@@ -239,26 +238,48 @@ export default function AddArticle() {
               />
               <label
                 htmlFor="file-upload"
-                className="inline-block px-6 py-2 bg-white border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50"
+                className="inline-block px-6 py-3 bg-blue-600 text-white rounded-md cursor-pointer hover:bg-blue-700 transition-colors font-medium"
               >
+                <i className="fas fa-image mr-2"></i>
                 Browse Files
               </label>
               {formData.image && (
-                <p className="mt-3 text-sm text-green-600">
-                  Selected: {formData.image.name}
-                </p>
+                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                  <i className="fas fa-check-circle text-green-600 mr-2"></i>
+                  <span className="text-sm text-green-700 font-medium">
+                    {formData.image.name}
+                  </span>
+                </div>
               )}
             </div>
           </div>
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium"
-            disabled={loading}
-          >
-            {loading ? "Adding..." : "Add"}
-          </button>
+          <div className="flex gap-4 pt-4">
+            <button
+              type="submit"
+              className="flex-1 px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <i className="fas fa-spinner fa-spin mr-2"></i>
+                  Publishing...
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-paper-plane mr-2"></i>
+                  Publish Article
+                </>
+              )}
+            </button>
+            <Link
+              to="/my-posts"
+              className="px-8 py-3 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors font-semibold text-center"
+            >
+              Cancel
+            </Link>
+          </div>
         </form>
       </div>
       <Footer />
