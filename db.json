@@ -305,6 +305,13 @@
       "userId": "2",
       "content": "yea man",
       "createdAt": "2025-11-01T10:43:29.983Z"
+    },
+    {
+      "id": "fbde",
+      "articleId": "1ff1",
+      "userId": "1",
+      "content": "helo",
+      "createdAt": "2025-11-01T10:45:57.687Z"
     }
   ],
   "replies": [
