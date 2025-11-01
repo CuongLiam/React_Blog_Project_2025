@@ -6,16 +6,15 @@ import Footer from "../../layouts/user/Footer";
 
 
 export default function HomePage() {
-  const ITEMS_PER_PAGE = 6; // Adjust this to change items per page
+  const ITEMS_PER_PAGE = 6;
+  const CATEGORY_PAGE_SIZE = 5;
 
+  // State
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
-    // For category filter pagination
-    const CATEGORY_PAGE_SIZE = 5;
-    const [categoryPage, setCategoryPage] = useState(0);
+  const [categoryPage, setCategoryPage] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  // const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]); //multi-select
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -50,21 +49,19 @@ export default function HomePage() {
     setCurrentPage(1); // Reset to first page when filtering
   };
 
-  // Filter articles by selected categories
+  // Computed values
   const filteredArticles = selectedCategories.length > 0
     ? articles.filter((article: any) => selectedCategories.includes(article.category))
     : articles;
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentArticles = filteredArticles.slice(startIndex, endIndex);
-
-  // Get recent posts (sort by date desc, pick top 3)
   const recentPosts = [...articles]
     .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 3);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentArticles = filteredArticles.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   // Handle pagination
   const handlePageChange = (page: number) => {
@@ -72,37 +69,35 @@ export default function HomePage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Generate page numbers with ellipsis
+  // Pagination helper
   const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
     if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        pages.push(1, 2, 3, "...", totalPages - 1, totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1, 2, "...", totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
-      }
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
-    return pages;
+    
+    if (currentPage <= 3) {
+      return [1, 2, 3, "...", totalPages - 1, totalPages];
+    }
+    
+    if (currentPage >= totalPages - 2) {
+      return [1, 2, "...", totalPages - 2, totalPages - 1, totalPages];
+    }
+    
+    return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
   };
 
   return (
     <>
       <Header />
       <div className="max-w-6xl mx-auto px-8 py-8">
-        {/* Recent blog posts section */}
+        {/* Recent blog posts */}
         <section className="mb-12">
           <h2 className="text-2xl font-bold mb-6">Recent blog posts</h2>
           {loading ? (
-            <div className="text-center py-12 text-gray-500">Đang tải dữ liệu...</div>
+            <div className="text-center py-12 text-gray-500">Loading articles...</div>
           ) : error ? (
             <div className="text-center py-12 text-red-500">{error}</div>
-          ) : (
+          ) : recentPosts.length > 0 ? (
             <div className="grid grid-cols-2 gap-6">
               {/* Large featured post */}
               <div className="col-span-1">
@@ -159,6 +154,8 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">No articles yet</div>
           )}
         </section>
 
@@ -176,99 +173,116 @@ export default function HomePage() {
         </div>
 
         {/* Category filters */}
-        {/* Category filters with horizontal scroll and arrow buttons */}
         <div className="mb-8 flex items-center gap-2">
-          {/* Left arrow */}
           <button
             onClick={() => setCategoryPage((p) => Math.max(0, p - 1))}
             disabled={categoryPage === 0}
-            className={`w-8 h-8 flex items-center justify-center rounded-full border ${categoryPage === 0 ? "text-gray-400 cursor-not-allowed" : "hover:bg-gray-200 text-gray-600"}`}
-            aria-label="Previous categories"
+            className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors ${
+              categoryPage === 0 
+                ? "text-gray-400 cursor-not-allowed" 
+                : "hover:bg-gray-100 text-gray-600"
+            }`}
+            aria-label="Previous"
           >
             <i className="fas fa-arrow-left"></i>
           </button>
+
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {categories.slice(categoryPage * CATEGORY_PAGE_SIZE, (categoryPage + 1) * CATEGORY_PAGE_SIZE).map((category: string) => (
-              <button
-                key={category}
-                onClick={() => handleCategoryClick(category)}
-                className={`px-4 py-2 rounded-full border text-sm transition-colors cursor-pointer ${
-                  selectedCategories.includes(category)
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "border-gray-300 hover:bg-gray-100"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
+            {categories
+              .slice(categoryPage * CATEGORY_PAGE_SIZE, (categoryPage + 1) * CATEGORY_PAGE_SIZE)
+              .map((category: string) => (
+                <button
+                  key={category}
+                  onClick={() => handleCategoryClick(category)}
+                  className={`px-4 py-2 rounded-full border text-sm whitespace-nowrap transition-colors ${
+                    selectedCategories.includes(category)
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "border-gray-300 hover:bg-gray-100"
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
           </div>
-          {/* Right arrow */}
+
           <button
             onClick={() => setCategoryPage((p) => Math.min(Math.ceil(categories.length / CATEGORY_PAGE_SIZE) - 1, p + 1))}
             disabled={(categoryPage + 1) * CATEGORY_PAGE_SIZE >= categories.length}
-            className={`w-8 h-8 flex items-center justify-center rounded-full border ${((categoryPage + 1) * CATEGORY_PAGE_SIZE >= categories.length) ? "text-gray-400 cursor-not-allowed" : "hover:bg-gray-200 text-gray-600"}`}
-            aria-label="Next categories"
+            className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors ${
+              (categoryPage + 1) * CATEGORY_PAGE_SIZE >= categories.length
+                ? "text-gray-400 cursor-not-allowed" 
+                : "hover:bg-gray-100 text-gray-600"
+            }`}
+            aria-label="Next"
           >
             <i className="fas fa-arrow-right"></i>
           </button>
         </div>
 
-        {/* Display filter info */}
+        {/* Active filters */}
         {selectedCategories.length > 0 && (
-          <div className="mb-4 text-sm text-gray-600 ">
-            Showing {filteredArticles.length} articles in {selectedCategories.map(c => `"${c}"`).join(", ")}
+          <div className="mb-6 flex items-center gap-2 text-sm">
+            <span className="text-gray-600">
+              Showing {filteredArticles.length} article{filteredArticles.length !== 1 ? 's' : ''} in:
+            </span>
+            {selectedCategories.map(cat => (
+              <span key={cat} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
+                {cat}
+              </span>
+            ))}
             <button
               onClick={() => setSelectedCategories([])}
-              className="ml-2 text-blue-600 hover:underline cursor-pointer"
+              className="ml-2 text-blue-600 hover:underline font-medium"
             >
-              Clear filter
+              Clear all
             </button>
           </div>
         )}
 
-        {/* All blog posts grid */}
+        {/* All blog posts */}
         <section className="mb-12">
           {loading ? (
-            <div className="text-center py-12 text-gray-500">Đang tải dữ liệu...</div>
+            <div className="text-center py-12 text-gray-500">Loading articles...</div>
           ) : error ? (
             <div className="text-center py-12 text-red-500">{error}</div>
           ) : currentArticles.length > 0 ? (
             <div className="grid grid-cols-3 gap-6">
               {currentArticles.map((article: any) => (
-                <div key={article.id} className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                <div key={article.id} className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white">
                   <Link to={`/article/${article.id}`}>
                     <img
                       src={article.image || "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400"}
-                      alt="blog post"
-                      className="w-full h-48 object-cover hover:opacity-90 transition-opacity cursor-pointer"
+                      alt={article.title}
+                      className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
                     />
                   </Link>
                   <div className="p-4">
                     <p className="text-sm text-gray-500 mb-1">
-                      Date: {article.date}
+                      {article.date}
                     </p>
                     <Link to={`/article/${article.id}`}>
-                      <h3 className="text-lg font-bold mb-2 flex items-center justify-between hover:text-blue-600 cursor-pointer">
-                        <span className="line-clamp-1">{article.title}</span>
-                        <i className="fas fa-arrow-up-right-from-square text-sm text-gray-400"></i>
+                      <h3 className="text-lg font-bold mb-2 hover:text-blue-600 line-clamp-2">
+                        {article.title}
                       </h3>
                     </Link>
                     <p className="text-gray-600 text-sm mb-3 line-clamp-2">
                       {article.content}
                     </p>
-                    <Link
-                      to="#"
-                      className="text-purple-600 font-semibold text-sm hover:underline"
-                    >
+                    <span className="inline-block px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-xs font-semibold">
                       {article.category}
-                    </Link>
+                    </span>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-gray-500">
-              No articles found in this category.
+            <div className="text-center py-16 bg-gray-50 rounded-lg">
+              <i className="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+              <p className="text-gray-500">
+                {selectedCategories.length > 0 
+                  ? "No articles found in selected categories" 
+                  : "No articles available"}
+              </p>
             </div>
           )}
         </section>
@@ -279,27 +293,28 @@ export default function HomePage() {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`flex items-center gap-2 ${
+              className={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${
                 currentPage === 1
                   ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-600 hover:text-gray-900"
+                  : "text-gray-700 hover:bg-gray-100"
               }`}
             >
               <i className="fas fa-arrow-left"></i>
               Previous
             </button>
+
             <div className="flex gap-2">
               {getPageNumbers().map((page, idx) =>
                 page === "..." ? (
-                  <span key={idx} className="px-2">...</span>
+                  <span key={idx} className="px-3 py-2 text-gray-400">...</span>
                 ) : (
                   <button
                     key={page}
                     onClick={() => handlePageChange(Number(page))}
-                    className={`px-3 py-1 rounded ${
+                    className={`w-10 h-10 rounded transition-colors ${
                       currentPage === page
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? "bg-blue-600 text-white font-semibold"
+                        : "hover:bg-gray-100 text-gray-700"
                     }`}
                   >
                     {page}
@@ -307,13 +322,14 @@ export default function HomePage() {
                 )
               )}
             </div>
+
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className={`flex items-center gap-2 ${
+              className={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${
                 currentPage === totalPages
                   ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-600 hover:text-gray-900"
+                  : "text-gray-700 hover:bg-gray-100"
               }`}
             >
               Next
