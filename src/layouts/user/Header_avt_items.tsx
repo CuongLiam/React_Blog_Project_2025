@@ -23,10 +23,16 @@ export const items: MenuProps["items"] = [
   {
     key: "view-profile",
     label: <span>View profile</span>,
+    onClick: () => {
+      window.location.href = "/my-profile";
+    },
   },
   {
     key: "update-avatar",
     label: <span>Update profile picture</span>,
+    onClick: () => {
+      window.location.href = "/my-profile";
+    },
   },
   {
     key: "change-password",
